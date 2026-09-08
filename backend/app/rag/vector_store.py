@@ -39,7 +39,7 @@ class LocalVectorStore:
         )
 
     def search(self, vector: list[float], limit: int) -> list[VectorMatch]:
-        if limit <= 0:
+        if limit <= 0 or not self.client.collection_exists(self.collection_name):
             return []
         results = self.client.query_points(
             collection_name=self.collection_name, query=vector, limit=limit, with_payload=True
