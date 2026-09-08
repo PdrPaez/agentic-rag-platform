@@ -25,6 +25,11 @@ class FakeProvider:
         return f"Answer from {context[0]}"
 
 
+class CalculatorProvider(FakeProvider):
+    def generate(self, query: str, context: Sequence[str], tool_result: str | None = None) -> str:
+        return f"Calculated {tool_result}"
+
+
 def test_chat_returns_structured_answer_and_citation() -> None:
     app.dependency_overrides[get_session] = lambda: iter([object()])
     original = (chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider)
@@ -39,6 +44,25 @@ def test_chat_returns_structured_answer_and_citation() -> None:
         assert body["answer"] == "Answer from Useful context"
         assert body["citations"][0]["document_name"] == "Guide.md"
         assert body["diagnostics"]["retrieved_chunks"] == 1
+    finally:
+        chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider = original
+        app.dependency_overrides.clear()
+
+
+def test_chat_uses_calculator_tool_without_citations() -> None:
+    app.dependency_overrides[get_session] = lambda: iter([object()])
+    original = (chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider)
+    chat_route.get_retriever = lambda: FakeRetriever()
+    chat_route.get_reranker = lambda: FakeReranker()
+    chat_route.get_provider = lambda: CalculatorProvider()
+    try:
+        response = TestClient(app).post("/api/chat", json={"question": "Calculate 20 / 4"})
+
+        body = response.json()
+        assert response.status_code == 200
+        assert body["answer"] == "Calculated 5"
+        assert body["citations"] == []
+        assert body["tools_used"] == ["calculator"]
     finally:
         chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider = original
         app.dependency_overrides.clear()
