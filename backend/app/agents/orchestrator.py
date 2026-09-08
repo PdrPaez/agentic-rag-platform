@@ -14,14 +14,21 @@ CALCULATION_PATTERN = re.compile(r"(?:calculate|compute|what is)\s+([0-9+\-*/().
 class OrchestrationResult:
     answer: str
     candidates: list[HybridCandidate]
+    ranked_candidates: list[tuple[HybridCandidate, float]]
     tools_used: list[str]
     steps: int
 
 
 class BoundedOrchestrator:
-    def __init__(self, provider: LLMProvider, retrieve: Callable[[str], list[HybridCandidate]]) -> None:
+    def __init__(
+        self,
+        provider: LLMProvider,
+        retrieve: Callable[[str], list[HybridCandidate]],
+        rank: Callable[[str, list[HybridCandidate]], list[tuple[HybridCandidate, float]]] | None = None,
+    ) -> None:
         self.provider = provider
         self.retrieve = retrieve
+        self.rank = rank
 
     def run(self, question: str) -> OrchestrationResult:
         steps = 1
@@ -32,16 +39,21 @@ class BoundedOrchestrator:
             return OrchestrationResult(
                 answer=self.provider.generate(question, [], tool_result=result),
                 candidates=[],
+                ranked_candidates=[],
                 tools_used=["calculator"],
                 steps=min(steps, MAX_STEPS),
             )
 
         candidates = self.retrieve(question)
+        ranked_candidates = self.rank(question, candidates) if self.rank else [
+            (candidate, candidate.hybrid_score) for candidate in candidates
+        ]
         steps += 1
-        answer = self.provider.generate(question, [candidate.text for candidate in candidates])
+        answer = self.provider.generate(question, [candidate.text for candidate, _ in ranked_candidates])
         return OrchestrationResult(
             answer=answer,
             candidates=candidates,
+            ranked_candidates=ranked_candidates,
             tools_used=["knowledge_search"] if candidates else [],
             steps=min(steps, MAX_STEPS),
         )

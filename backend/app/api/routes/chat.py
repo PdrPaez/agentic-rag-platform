@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+from app.agents.orchestrator import BoundedOrchestrator
 from app.api.routes.documents import get_session
 from app.core.config import get_settings
 from app.rag.provider_runtime import get_provider
@@ -60,25 +61,44 @@ def get_retriever() -> HybridRetriever:
     return HybridRetriever(get_embedder(), vector_store, get_settings())
 
 
+class TimedProvider:
+    def __init__(self, provider: object, timings: dict[str, float]) -> None:
+        self.provider = provider
+        self.timings = timings
+        self.name = provider.name
+
+    def generate(self, question: str, context: list[str], tool_result: str | None = None) -> str:
+        started = perf_counter()
+        answer = self.provider.generate(question, context, tool_result)
+        self.timings["generation_latency_ms"] = (perf_counter() - started) * 1000
+        return answer
+
+
 @router.post("/chat", response_model=ChatResponse)
 def chat(request: ChatRequest, session: Session = Depends(get_session)) -> ChatResponse:
     request_id = str(uuid4())
     started = perf_counter()
-    retrieval_started = perf_counter()
-    candidates = get_retriever().search(request.question, session)
-    retrieval_latency_ms = (perf_counter() - retrieval_started) * 1000
-    reranked = rerank_candidates(
-        request.question, candidates, get_reranker(), get_settings().final_context_count
-    )
-    generation_started = perf_counter()
-    answer = get_provider().generate(request.question, [candidate.text for candidate, _ in reranked])
-    generation_latency_ms = (perf_counter() - generation_started) * 1000
+    timings: dict[str, float] = {"retrieval_latency_ms": 0.0, "generation_latency_ms": 0.0}
+
+    def retrieve(question: str):
+        retrieval_started = perf_counter()
+        candidates = get_retriever().search(question, session)
+        timings["retrieval_latency_ms"] = (perf_counter() - retrieval_started) * 1000
+        return candidates
+
+    def rank(question: str, candidates):
+        return rerank_candidates(question, candidates, get_reranker(), get_settings().final_context_count)
+
+    result = BoundedOrchestrator(TimedProvider(get_provider(), timings), retrieve, rank).run(request.question)
+    reranked = result.ranked_candidates
+    answer = result.answer
+    generation_latency_ms = timings["generation_latency_ms"]
     diagnostics = ChatDiagnostics(
         request_id=request_id,
-        retrieved_chunks=len(candidates),
+        retrieved_chunks=len(result.candidates),
         reranked_chunks=len(reranked),
         total_latency_ms=(perf_counter() - started) * 1000,
-        retrieval_latency_ms=retrieval_latency_ms,
+        retrieval_latency_ms=timings["retrieval_latency_ms"],
         generation_latency_ms=generation_latency_ms,
         provider=get_provider().name,
         estimated_input_tokens=len(request.question.split()) + sum(len(candidate.text.split()) for candidate, _ in reranked),
@@ -106,6 +126,6 @@ def chat(request: ChatRequest, session: Session = Depends(get_session)) -> ChatR
             )
             for candidate, _ in reranked
         ],
-        tools_used=[],
+        tools_used=result.tools_used,
         diagnostics=diagnostics,
     )
