@@ -16,6 +16,10 @@ class Settings(BaseSettings):
     embedding_model_name: str = "sentence-transformers/all-MiniLM-L6-v2"
     vector_collection_name: str = "document_chunks"
     reranker_model_name: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+    llm_provider: str = "mock"
+    llm_model_name: str = "gpt-4o-mini"
+    llm_api_key: str | None = None
+    llm_base_url: str = "https://api.openai.com/v1"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
