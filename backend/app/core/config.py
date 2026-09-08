@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     backend_port: int = 8000
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
     database_url: str = "sqlite:///./data/agentic_rag.db"
+    max_upload_size_bytes: int = 10 * 1024 * 1024
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
