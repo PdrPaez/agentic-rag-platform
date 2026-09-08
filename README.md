@@ -43,7 +43,8 @@ python -m pytest
 - `scripts/` — local developer utilities
 - `tests/` — cross-component tests when needed
 
+The complete implementation roadmap and governing engineering specification is maintained in [`docs/implementation-specification.md`](docs/implementation-specification.md), with its operating summary in [`docs/roadmap.md`](docs/roadmap.md).
+
 ## Workflow
 
 Development follows `feature/* → dev → main` (and corresponding `fix/*`, `docs/*`, and other scoped prefixes). Commits use `[AREA][ARAG-XXX] description`.
-
