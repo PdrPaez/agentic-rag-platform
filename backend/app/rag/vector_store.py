@@ -52,6 +52,8 @@ class LocalVectorStore:
     def delete_document(self, document_id: str) -> None:
         from qdrant_client.models import FieldCondition, Filter, MatchValue
 
+        if not self.client.collection_exists(self.collection_name):
+            return
         self.client.delete(
             collection_name=self.collection_name,
             points_selector=Filter(
