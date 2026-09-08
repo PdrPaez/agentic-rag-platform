@@ -36,6 +36,7 @@ class LexicalIndex:
             return []
         scores = self._index.get_scores(tokenize(query))
         ranked_indexes = sorted(range(len(scores)), key=lambda index: scores[index], reverse=True)
+        query_tokens = set(tokenize(query))
         return [
             LexicalMatch(
                 chunk_id=self._chunk_ids[index],
@@ -44,6 +45,6 @@ class LexicalIndex:
                 document_id=self._chunks[index].document_id,
             )
             for index in ranked_indexes[:limit]
-            if scores[index] > 0
+            if query_tokens.intersection(tokenize(self._chunks[index].text))
         ]
 
