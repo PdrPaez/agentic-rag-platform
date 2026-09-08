@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     vector_storage_path: str = "./qdrant_storage"
     embedding_model_name: str = "sentence-transformers/all-MiniLM-L6-v2"
     vector_collection_name: str = "document_chunks"
+    reranker_model_name: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
