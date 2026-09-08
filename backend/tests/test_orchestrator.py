@@ -27,3 +27,4 @@ def test_orchestrator_searches_knowledge_for_non_calculation_questions() -> None
 
     assert result.answer == "context=retrieved context"
     assert result.tools_used == ["knowledge_search"]
+    assert result.ranked_candidates[0][0].chunk_id == "chunk"
