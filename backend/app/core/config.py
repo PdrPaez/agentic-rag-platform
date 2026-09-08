@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     llm_model_name: str = "gpt-4o-mini"
     llm_api_key: str | None = None
     llm_base_url: str = "https://api.openai.com/v1"
+    retrieval_candidate_count: int = 12
+    final_context_count: int = 5
+    lexical_weight: float = 0.4
+    vector_weight: float = 0.6
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
