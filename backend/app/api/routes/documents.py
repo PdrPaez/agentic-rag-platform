@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
+from app.rag.runtime import get_embedder, vector_store
 from app.repositories.documents import DocumentRepository
 from app.services.document_ingestion import DocumentIngestionError, ingest_document
 
@@ -39,7 +40,26 @@ async def upload_document(
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     document = DocumentRepository(session).add(extracted.name, extracted.source_type, extracted.chunks)
-    session.commit()
+    try:
+        vectors = get_embedder().encode(extracted.chunks)
+        vector_store.ensure_collection(get_embedder().dimension)
+        vector_store.upsert(
+            [chunk.id for chunk in document.chunks],
+            vectors,
+            [
+                {
+                    "document_id": document.id,
+                    "document_name": document.name,
+                    "chunk_index": chunk.chunk_index,
+                    "text": chunk.text,
+                }
+                for chunk in document.chunks
+            ],
+        )
+        session.commit()
+    except Exception as exc:
+        session.rollback()
+        raise HTTPException(status_code=503, detail="Document embedding is temporarily unavailable") from exc
     return DocumentResponse(
         id=document.id,
         name=document.name,
@@ -68,4 +88,5 @@ def delete_document(document_id: str, session: Session = Depends(get_session)) -
     if document is not None:
         repository.delete(document)
         session.commit()
+        vector_store.delete_document(document_id)
 
