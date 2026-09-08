@@ -13,6 +13,8 @@ dist/
 coverage/
 *.db
 *.sqlite3
+data/
+qdrant_storage/
 .DS_Store
 .idea/
 .vscode/
