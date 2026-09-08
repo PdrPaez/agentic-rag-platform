@@ -1,16 +1,16 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
+from app.api.routes.health import router as health_router
+from app.core.config import get_settings
 
-class HealthResponse(BaseModel):
-    status: str
-    service: str
-
-
-app = FastAPI(title="Agentic RAG Platform API", version="0.1.0")
-
-
-@app.get("/api/health", response_model=HealthResponse)
-def health() -> HealthResponse:
-    return HealthResponse(status="ok", service="agentic-rag-platform-api")
-
+settings = get_settings()
+app = FastAPI(title=settings.app_name, version=settings.app_version)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.allowed_origins,
+    allow_credentials=False,
+    allow_methods=["GET"],
+    allow_headers=["*"],
+)
+app.include_router(health_router, prefix="/api")
