@@ -32,7 +32,20 @@ def test_trace_endpoint_returns_recorded_trace() -> None:
 
 
 def test_trace_redacts_sensitive_metadata() -> None:
-    record_trace("secret-trace", "provider", 0.0, api_key="do-not-store", authorization="Bearer secret")
+    record_trace(
+        "secret-trace",
+        "provider",
+        0.0,
+        api_key="do-not-store",
+        authorization="Bearer secret",
+        provider={"token": "nested-secret", "model": "mock"},
+        attempts=[{"password": "nested-password"}],
+    )
 
     metadata = TestClient(app).get("/api/traces/secret-trace").json()["entries"][0]["metadata"]
-    assert metadata == {"api_key": "[REDACTED]", "authorization": "[REDACTED]"}
+    assert metadata == {
+        "api_key": "[REDACTED]",
+        "authorization": "[REDACTED]",
+        "provider": {"token": "[REDACTED]", "model": "mock"},
+        "attempts": [{"password": "[REDACTED]"}],
+    }
