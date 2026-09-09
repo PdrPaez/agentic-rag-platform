@@ -16,6 +16,7 @@ coverage/
 data/
 qdrant_storage/
 qdrant_test_*/
+qdrant_*/
 .DS_Store
 .idea/
 .vscode/
