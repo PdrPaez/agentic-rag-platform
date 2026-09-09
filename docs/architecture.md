@@ -34,7 +34,7 @@ The health and metrics routes are available both at `/health` and `/api/health`,
 
 Lexical retrieval uses BM25 over tokens from persisted chunks. Vector retrieval uses normalized sentence-transformer embeddings and cosine similarity in Qdrant. Hybrid ranking applies configurable lexical/vector weights after min-max normalization. A CrossEncoder reranker scores the hybrid candidate texts before the final context is selected.
 
-The evaluation command (`python -m app.evaluation.run`) uses a controlled five-document corpus and exactly ten questions. It computes vector-only, hybrid, and hybrid-plus-reranking Hit Rate@5 and MRR, as well as deterministic expected-fact coverage and average latency. Fact coverage is normalized text matching for this controlled corpus; it is not semantic factuality evaluation.
+The evaluation command (`python -m app.evaluation.run`) uses a controlled five-document corpus and 30 cases, including a 20% negative slice for abstention behavior. It computes vector-only, hybrid, and hybrid-plus-reranking Hit Rate@5 and MRR, as well as deterministic expected-fact coverage and average latency. Fact coverage is normalized text matching for this controlled corpus; it is not semantic factuality evaluation. Backend tests also exercise deterministic answer-behavior checks for abstention, citation presence, and expected-fact coverage.
 
 ## Frontend boundaries
 
