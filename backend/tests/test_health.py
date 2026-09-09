@@ -25,6 +25,15 @@ def test_settings_parse_comma_separated_cors_origins() -> None:
     ]
 
 
+def test_public_openapi_routes_have_descriptions() -> None:
+    paths = app.openapi()["paths"]
+
+    assert "/api/demo/seed" in paths
+    assert "/api/documents/demo/seed" not in paths
+    assert paths["/api/chat"]["post"]["summary"] == "Ask the bounded RAG agent"
+    assert paths["/api/demo/seed"]["post"]["summary"] == "Seed the demo corpus"
+
+
 @pytest.mark.parametrize("field", ["max_context_characters", "retrieval_candidate_count", "final_context_count", "llm_timeout_seconds"])
 def test_settings_reject_non_positive_runtime_limits(field: str) -> None:
     with pytest.raises(ValidationError):
