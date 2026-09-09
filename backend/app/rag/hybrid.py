@@ -63,7 +63,8 @@ def combine_results(
 
     weight_total = lexical_weight + vector_weight
     ranked = sorted(
-        candidates.values(), key=lambda candidate: candidate.hybrid_score / weight_total, reverse=True
+        candidates.values(),
+        key=lambda candidate: (-candidate.hybrid_score / weight_total, candidate.chunk_id),
     )
     return ranked[:limit]
 

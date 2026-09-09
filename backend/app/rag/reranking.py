@@ -28,6 +28,9 @@ def rerank_candidates(
     scores = reranker.score(query, [candidate.text for candidate in candidates])
     if len(scores) != len(candidates):
         raise ValueError("The reranker returned an unexpected number of scores")
-    ranked = sorted(zip(candidates, scores, strict=True), key=lambda item: item[1], reverse=True)
+    ranked = sorted(
+        zip(candidates, scores, strict=True),
+        key=lambda item: (-item[1], item[0].chunk_id),
+    )
     return ranked[:limit]
 
