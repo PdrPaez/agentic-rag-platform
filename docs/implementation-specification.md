@@ -797,6 +797,7 @@ Use a structure conceptually equivalent to:
     "reranked_chunks": 0,
     "total_latency_ms": 0,
     "retrieval_latency_ms": 0,
+    "reranking_latency_ms": 0,
     "generation_latency_ms": 0,
     "provider": "...",
     "estimated_input_tokens": 0,
