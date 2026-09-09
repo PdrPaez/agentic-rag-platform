@@ -315,4 +315,4 @@ Before promotion, run backend tests and Ruff, frontend lint and build, and updat
 
 ## License
 
-This repository is released under the [MIT License](LICENSE).
+Released under the MIT License. See [LICENSE](LICENSE).
