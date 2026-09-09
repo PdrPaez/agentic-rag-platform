@@ -28,7 +28,8 @@ def ingest_document(
     chunk_size: int = 800,
     chunk_overlap: int = 150,
 ) -> ExtractedDocument:
-    extension = PurePath(filename).suffix.lower()
+    safe_filename = filename.replace("\\", "/")
+    extension = PurePath(safe_filename).suffix.lower()
     if extension not in SUPPORTED_EXTENSIONS:
         raise DocumentIngestionError("Unsupported document type. Use .txt, .md, or .pdf")
     if not content:
@@ -43,7 +44,7 @@ def ingest_document(
         raise DocumentIngestionError("The document contains no extractable text")
     chunks = split_text(text, chunk_size=chunk_size, chunk_overlap=chunk_overlap)
     return ExtractedDocument(
-        name=PurePath(filename).name,
+        name=PurePath(safe_filename).name,
         source_type=extension.removeprefix("."),
         text=text,
         chunks=chunks,
