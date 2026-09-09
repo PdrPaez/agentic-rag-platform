@@ -5,7 +5,7 @@ The platform is a local-first reference implementation, not a complete enterpris
 - Retrieved documents are evidence, not instructions. Providers are told to answer from supplied context and must not execute commands or follow instructions embedded in document text.
 - The calculator accepts a restricted arithmetic grammar and evaluates expressions without Python `eval`.
 - Uploads are limited by `MAX_UPLOAD_SIZE_BYTES` and supported file types are validated before ingestion.
-- Provider keys are read from environment configuration and are never included in request traces or application logs.
+- Provider keys are read from environment configuration and are never included in request traces or application logs; trace metadata redaction recursively covers nested structures and common key naming variants.
 - The deterministic mock provider is the default, so local development and CI do not require credentials or external calls.
 
 ## Known limitations
