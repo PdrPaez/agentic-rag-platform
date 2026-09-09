@@ -24,7 +24,10 @@ SENSITIVE_METADATA_KEYS = {"api_key", "authorization", "password", "secret", "to
 
 def _is_sensitive_key(key: object) -> bool:
     normalized = re.sub(r"[^a-z0-9]", "", str(key).lower())
-    return normalized in {"apikey", "authorization", "password", "secret", "token"} or normalized.endswith("token")
+    return (
+        any(marker in normalized for marker in ("apikey", "authorization", "password", "secret"))
+        or normalized.endswith("token")
+    )
 
 
 def _safe_value(value: Any) -> Any:
