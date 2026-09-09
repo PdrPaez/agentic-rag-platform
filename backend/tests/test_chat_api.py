@@ -154,6 +154,7 @@ def test_chat_reports_partial_when_context_budget_truncates() -> None:
         body = response.json()
         assert response.status_code == 200
         assert body["answer_status"] == "partial"
+        assert body["diagnostics"]["context_truncated"] is True
         assert body["citations"][0]["chunk_id"] == "large-chunk"
     finally:
         chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider = original

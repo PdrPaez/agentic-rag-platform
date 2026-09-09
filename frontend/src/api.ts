@@ -36,6 +36,7 @@ export type ChatResponse = {
     provider: string;
     estimated_input_tokens: number;
     estimated_output_tokens: number;
+    context_truncated: boolean;
     retrieval: RetrievalDiagnostic[];
   };
 };
