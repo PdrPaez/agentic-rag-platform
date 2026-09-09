@@ -8,5 +8,20 @@
   {"question": "Which Python version and formatter rules are required?", "expected_document": "engineering-handbook.md", "expected_facts": ["Python 3.11", "Ruff", "100 characters"]},
   {"question": "How many approvals are needed before merging a pull request?", "expected_document": "engineering-handbook.md", "expected_facts": ["two approvals", "pull request"]},
   {"question": "What is the support team's initial response target?", "expected_document": "support-procedures.md", "expected_facts": ["four business hours", "first response"]},
-  {"question": "When is a support ticket escalated to the service owner?", "expected_document": "support-procedures.md", "expected_facts": ["two business days", "service owner"]}
+  {"question": "When is a support ticket escalated to the service owner?", "expected_document": "support-procedures.md", "expected_facts": ["two business days", "service owner"]},
+  {"question": "Which local component indexes the chunks?", "expected_document": "architecture.md", "expected_facts": ["Qdrant", "chunks"]},
+  {"question": "What is the configured overlap between text chunks?", "expected_document": "architecture.md", "expected_facts": ["150 characters"]},
+  {"question": "What happens when a yearly plan is cancelled?", "expected_document": "refund-policy.md", "expected_facts": ["current billing period"]},
+  {"question": "What is the refund request window in days?", "expected_document": "refund-policy.md", "expected_facts": ["30 calendar days"]},
+  {"question": "Who is paged first during a Sev-1 event?", "expected_document": "incident-response.md", "expected_facts": ["incident commander", "15 minutes"]},
+  {"question": "How often are customers updated during recovery?", "expected_document": "incident-response.md", "expected_facts": ["30 minutes", "status page"]},
+  {"question": "Which tool checks Python formatting?", "expected_document": "engineering-handbook.md", "expected_facts": ["Ruff"]},
+  {"question": "What review gate applies before a pull request merge?", "expected_document": "engineering-handbook.md", "expected_facts": ["two approvals"]},
+  {"question": "What is the first-response SLA for support?", "expected_document": "support-procedures.md", "expected_facts": ["four business hours"]},
+  {"question": "What threshold triggers support escalation?", "expected_document": "support-procedures.md", "expected_facts": ["two business days", "service owner"]},
+  {"question": "Explain the chunking configuration and vector database.", "expected_document": "architecture.md", "expected_facts": ["800 characters", "150 characters", "Qdrant"]},
+  {"question": "Summarize the incident commander timing and customer update channel.", "expected_document": "incident-response.md", "expected_facts": ["incident commander", "public status page"]},
+  {"question": "What are the engineering language and style constraints?", "expected_document": "engineering-handbook.md", "expected_facts": ["Python 3.11", "Ruff", "100 characters"]},
+  {"question": "Is there a policy for quantum coffee reimbursements?", "expected_document": "", "expected_facts": []},
+  {"question": "Which system keeps the searchable vector index locally?", "expected_document": "architecture.md", "expected_facts": ["Qdrant", "vector"]}
 ]
