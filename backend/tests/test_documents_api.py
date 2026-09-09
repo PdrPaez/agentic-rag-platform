@@ -51,3 +51,47 @@ def test_document_api_upload_list_and_delete(tmp_path: Path) -> None:
         documents_route.get_embedder = original_embedder
         documents_route.vector_store = original_vector_store
         app.dependency_overrides.clear()
+
+
+def test_document_delete_rolls_back_when_vector_delete_fails(tmp_path: Path) -> None:
+    session_factory = create_session_factory(f"sqlite:///{tmp_path / 'delete.db'}")
+    Base.metadata.create_all(session_factory.kw["bind"])
+
+    def override_session():
+        with session_factory() as session:
+            yield session
+
+    class FakeEmbedder:
+        dimension = 2
+
+        def encode(self, texts: list[str]) -> list[list[float]]:
+            return [[1.0, 0.0] for _ in texts]
+
+    class FailingVectorStore:
+        def ensure_collection(self, dimension: int) -> None:
+            pass
+
+        def upsert(self, chunk_ids, vectors, payloads) -> None:
+            pass
+
+        def delete_document(self, document_id: str) -> None:
+            raise RuntimeError("vector store unavailable")
+
+    app.dependency_overrides[get_session] = override_session
+    original_embedder = documents_route.get_embedder
+    original_vector_store = documents_route.vector_store
+    documents_route.get_embedder = lambda: FakeEmbedder()
+    documents_route.vector_store = FailingVectorStore()
+    try:
+        client = TestClient(app)
+        uploaded = client.post("/api/documents", files={"file": ("notes.txt", b"Project notes")})
+        document_id = uploaded.json()["id"]
+
+        deleted = client.delete(f"/api/documents/{document_id}")
+
+        assert deleted.status_code == 503
+        assert client.get("/api/documents").json()[0]["id"] == document_id
+    finally:
+        documents_route.get_embedder = original_embedder
+        documents_route.vector_store = original_vector_store
+        app.dependency_overrides.clear()
