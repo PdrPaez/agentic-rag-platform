@@ -139,6 +139,8 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
     GENERATION_LATENCY.observe(timings["generation_latency_ms"] / 1000)
     reranked = result.ranked_candidates
     answer = result.answer
+    if result.conflict_detected:
+        answer = f"{answer}\n\nThe corpus contains conflicting evidence. Review the cited sources before relying on this answer."
     generation_latency_ms = timings["generation_latency_ms"]
     diagnostics = ChatDiagnostics(
         request_id=request_id,

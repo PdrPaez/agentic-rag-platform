@@ -183,6 +183,7 @@ def test_chat_surfaces_conflicting_evidence_as_partial() -> None:
         body = response.json()
         assert response.status_code == 200
         assert body["answer_status"] == "partial"
+        assert "conflicting evidence" in body["answer"]
         assert body["diagnostics"]["conflict_detected"] is True
         assert [citation["document_name"] for citation in body["citations"]] == ["Policy A.md", "Policy B.md"]
     finally:
