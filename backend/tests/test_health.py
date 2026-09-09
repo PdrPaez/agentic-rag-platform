@@ -1,4 +1,6 @@
+import pytest
 from fastapi.testclient import TestClient
+from pydantic import ValidationError
 
 from app.core.config import Settings
 from app.main import app
@@ -21,3 +23,9 @@ def test_settings_parse_comma_separated_cors_origins() -> None:
         "http://localhost:5173",
         "http://127.0.0.1:5173",
     ]
+
+
+@pytest.mark.parametrize("field", ["max_context_characters", "retrieval_candidate_count", "final_context_count"])
+def test_settings_reject_non_positive_runtime_limits(field: str) -> None:
+    with pytest.raises(ValidationError):
+        Settings(**{field: 0})
