@@ -213,6 +213,7 @@ The backend reads environment variables from backend/.env.
 | BACKEND_HOST | 127.0.0.1 | Bind address |
 | BACKEND_PORT | 8000 | Bind port |
 | CORS_ORIGINS | local Vite origins | Allowed browser origins |
+| VITE_API_BASE_URL | /api | Frontend API base URL; local Vite proxy is used by default |
 | DATABASE_URL | sqlite:///./data/agentic_rag.db | SQLite connection |
 | VECTOR_STORAGE_PATH | ./qdrant_storage | Local Qdrant storage |
 | EMBEDDING_MODEL_NAME | sentence-transformers/all-MiniLM-L6-v2 | Embedding model |
@@ -227,6 +228,9 @@ The backend reads environment variables from backend/.env.
 | VECTOR_WEIGHT | 0.6 | Vector contribution |
 | CHUNK_SIZE | 800 | Characters per chunk |
 | CHUNK_OVERLAP | 150 | Character overlap |
+| MAX_UPLOAD_SIZE_BYTES | 10485760 | Maximum upload size |
+| MAX_CONTEXT_CHARACTERS | 6000 | Maximum provider context size |
+| LLM_TIMEOUT_SECONDS | 30 | Provider request timeout |
 
 ## Validation
 
