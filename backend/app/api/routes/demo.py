@@ -6,6 +6,6 @@ from app.api.routes.documents import DocumentResponse, get_session, seed_demo_do
 router = APIRouter()
 
 
-@router.post("/demo/seed", response_model=list[DocumentResponse])
+@router.post("/demo/seed", response_model=list[DocumentResponse], summary="Seed the demo corpus")
 def seed_demo(session: Session = Depends(get_session)) -> list[DocumentResponse]:
     return seed_demo_documents(session)

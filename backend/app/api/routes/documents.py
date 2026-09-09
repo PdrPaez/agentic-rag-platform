@@ -105,7 +105,6 @@ def delete_document(document_id: str, session: Session = Depends(get_session)) -
             raise HTTPException(status_code=503, detail="Document deletion is temporarily unavailable") from exc
 
 
-@router.post("/demo/seed", response_model=list[DocumentResponse], summary="Seed the demo corpus")
 def seed_demo_documents(session: Session = Depends(get_session)) -> list[DocumentResponse]:
     from pathlib import Path
 
