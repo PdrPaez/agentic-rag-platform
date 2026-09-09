@@ -45,6 +45,8 @@ class RetrievalDiagnostic(BaseModel):
     vector_score: float
     hybrid_score: float
     reranker_score: float
+    final_rank: int
+    chunk_index: int
 
 
 class ChatDiagnostics(BaseModel):
@@ -175,8 +177,10 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
                 vector_score=candidate.vector_score,
                 hybrid_score=candidate.hybrid_score,
                 reranker_score=score,
+                final_rank=index + 1,
+                chunk_index=candidate.chunk_index,
             )
-            for candidate, score in reranked
+            for index, (candidate, score) in enumerate(reranked)
         ],
     )
     answer_status = (
