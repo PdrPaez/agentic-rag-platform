@@ -1,0 +1,12 @@
+[
+  {"question": "Which vector database stores document chunks?", "expected_document": "architecture.md", "expected_facts": ["Qdrant", "document chunks"]},
+  {"question": "What chunk size and overlap does the ingestion pipeline use?", "expected_document": "architecture.md", "expected_facts": ["800 characters", "150 characters"]},
+  {"question": "How long does a customer have to request a refund?", "expected_document": "refund-policy.md", "expected_facts": ["30 calendar days", "refund"]},
+  {"question": "Can an annual subscription be cancelled immediately?", "expected_document": "refund-policy.md", "expected_facts": ["annual plans", "end of the current billing period"]},
+  {"question": "Who coordinates a severity one incident and how quickly?", "expected_document": "incident-response.md", "expected_facts": ["incident commander", "15 minutes"]},
+  {"question": "Where should customers find live updates during an outage?", "expected_document": "incident-response.md", "expected_facts": ["status page", "public status page"]},
+  {"question": "Which Python version and formatter rules are required?", "expected_document": "engineering-handbook.md", "expected_facts": ["Python 3.11", "Ruff", "100 characters"]},
+  {"question": "How many approvals are needed before merging a pull request?", "expected_document": "engineering-handbook.md", "expected_facts": ["two approvals", "pull request"]},
+  {"question": "What is the support team's initial response target?", "expected_document": "support-procedures.md", "expected_facts": ["four business hours", "first response"]},
+  {"question": "When is a support ticket escalated to the service owner?", "expected_document": "support-procedures.md", "expected_facts": ["two business days", "service owner"]}
+]

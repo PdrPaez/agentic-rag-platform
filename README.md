@@ -35,6 +35,19 @@ cd backend
 python -m pytest
 ```
 
+### Retrieval evaluation
+
+Run the deterministic, offline benchmark bundled with the backend:
+
+```powershell
+cd backend
+python -m app.evaluation.run
+```
+
+It compares vector-only, hybrid, and hybrid-plus-reranking retrieval using Hit Rate@5,
+MRR, normalized expected-fact coverage, and average latency. Fact coverage is a simple
+normalized text-matching signal for this controlled dataset; it is not semantic factuality evaluation.
+
 ## Project structure
 
 - `backend/` — Python API and domain code
