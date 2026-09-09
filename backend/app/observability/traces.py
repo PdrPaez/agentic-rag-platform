@@ -21,11 +21,21 @@ logger = logging.getLogger("agentic_rag_platform")
 SENSITIVE_METADATA_KEYS = {"api_key", "authorization", "password", "secret", "token"}
 
 
+def _safe_value(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {
+            key: "[REDACTED]" if str(key).lower() in SENSITIVE_METADATA_KEYS else _safe_value(item)
+            for key, item in value.items()
+        }
+    if isinstance(value, list):
+        return [_safe_value(item) for item in value]
+    if isinstance(value, tuple):
+        return tuple(_safe_value(item) for item in value)
+    return value
+
+
 def _safe_metadata(metadata: dict[str, Any]) -> dict[str, Any]:
-    return {
-        key: "[REDACTED]" if key.lower() in SENSITIVE_METADATA_KEYS else value
-        for key, value in metadata.items()
-    }
+    return _safe_value(metadata)
 
 
 def record_trace(request_id: str, stage: str, elapsed_ms: float, **metadata: Any) -> None:
