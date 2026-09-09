@@ -53,6 +53,8 @@ The screenshots are versioned under docs/assets and were generated from the runn
 
 ## Architecture
 
+The main architectural trade-offs are recorded in [docs/adr/README.md](docs/adr/README.md).
+
 ~~~mermaid
 flowchart LR
     Browser[React + TypeScript workspace] -->|HTTP /api| API[FastAPI]
