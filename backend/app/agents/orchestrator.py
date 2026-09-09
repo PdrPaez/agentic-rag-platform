@@ -27,10 +27,12 @@ class BoundedOrchestrator:
         provider: LLMProvider,
         retrieve: Callable[[str], list[HybridCandidate]],
         rank: Callable[[str, list[HybridCandidate]], list[tuple[HybridCandidate, float]]] | None = None,
+        max_context_characters: int = MAX_CONTEXT_CHARACTERS,
     ) -> None:
         self.provider = provider
         self.retrieve = retrieve
         self.rank = rank
+        self.max_context_characters = max_context_characters
 
     def run(self, question: str) -> OrchestrationResult:
         steps = 1
@@ -54,7 +56,7 @@ class BoundedOrchestrator:
         context: list[str] = []
         total_characters = 0
         for candidate, _ in ranked_candidates:
-            if total_characters + len(candidate.text) > MAX_CONTEXT_CHARACTERS:
+            if total_characters + len(candidate.text) > self.max_context_characters:
                 break
             context.append(candidate.text)
             total_characters += len(candidate.text)
