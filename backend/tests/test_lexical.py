@@ -4,6 +4,7 @@ from app.rag.lexical import LexicalIndex, tokenize
 
 def test_tokenize_is_case_insensitive_and_ignores_punctuation() -> None:
     assert tokenize("Hybrid Retrieval, v2!") == ["hybrid", "retrieval", "v2"]
+    assert tokenize("What is the retrieval policy?") == ["retrieval", "policy"]
 
 
 def test_lexical_index_ranks_matching_chunk_and_rebuilds() -> None:

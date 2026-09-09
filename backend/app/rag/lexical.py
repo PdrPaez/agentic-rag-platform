@@ -6,10 +6,11 @@ from rank_bm25 import BM25Okapi
 from app.db.models import ChunkRecord
 
 TOKEN_PATTERN = re.compile(r"\w+", re.UNICODE)
+STOPWORDS = {"a", "an", "and", "are", "does", "for", "how", "is", "of", "the", "to", "what", "which"}
 
 
 def tokenize(text: str) -> list[str]:
-    return TOKEN_PATTERN.findall(text.lower())
+    return [token for token in TOKEN_PATTERN.findall(text.lower()) if token not in STOPWORDS]
 
 
 @dataclass(frozen=True)
