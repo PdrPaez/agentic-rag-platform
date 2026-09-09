@@ -1,4 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 :root { font-family: "DM Sans", ui-sans-serif, sans-serif; color: #e7eaf2; background: #101217; font-synthesis: none; }
 * { box-sizing: border-box; } body { margin: 0; min-width: 1100px; background: radial-gradient(circle at 20% -10%, #22283c 0, #101217 42rem), #101217; } button, input { font: inherit; } button { cursor: pointer; } button:disabled { cursor: not-allowed; opacity: .5; }
 .app-shell { max-width: 1600px; min-height: 100vh; margin: 0 auto; padding: 28px 34px 34px; }.topbar { display: flex; align-items: center; gap: 14px; padding-bottom: 26px; border-bottom: 1px solid #282c37; }.brand-mark { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid #747bff; border-radius: 11px; color: #a9abff; background: #4d4fc21f; font: 500 13px "DM Mono", monospace; }.eyebrow, .section-kicker { margin: 0 0 3px; color: #9299b3; font: 500 10px "DM Mono", monospace; letter-spacing: .12em; text-transform: uppercase; } h1, h2, h3, p { margin-top: 0; } h1 { margin-bottom: 0; font-size: 17px; font-weight: 600; letter-spacing: -.02em; } h2 { margin: 0; font-size: 16px; } h3 { font-size: 20px; }.system-state { margin-left: auto; color: #9da4b9; font: 11px "DM Mono", monospace; }.pulse { display: inline-block; width: 7px; height: 7px; margin-right: 7px; border-radius: 50%; background: #76d7ad; box-shadow: 0 0 12px #76d7ad; }
