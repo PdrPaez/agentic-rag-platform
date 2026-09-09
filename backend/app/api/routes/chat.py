@@ -157,6 +157,7 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
     )
     answer_status = (
         "tool_result" if "calculator" in result.tools_used
+        else "partial" if result.context_truncated
         else "answered" if reranked
         else "insufficient_context"
     )

@@ -19,6 +19,7 @@ class OrchestrationResult:
     ranked_candidates: list[tuple[HybridCandidate, float]]
     tools_used: list[str]
     steps: int
+    context_truncated: bool = False
 
 
 class BoundedOrchestrator:
@@ -55,8 +56,10 @@ class BoundedOrchestrator:
         steps += 1
         context: list[str] = []
         total_characters = 0
+        context_truncated = False
         for candidate, _ in ranked_candidates:
             if total_characters + len(candidate.text) > self.max_context_characters:
+                context_truncated = True
                 break
             context.append(candidate.text)
             total_characters += len(candidate.text)
@@ -67,5 +70,6 @@ class BoundedOrchestrator:
             ranked_candidates=ranked_candidates,
             tools_used=["search_knowledge_base"] if candidates else [],
             steps=min(steps, MAX_STEPS),
+            context_truncated=context_truncated,
         )
 
