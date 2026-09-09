@@ -38,6 +38,7 @@ export type ChatResponse = {
     estimated_output_tokens: number;
     context_truncated: boolean;
     context_chunks: number;
+    conflict_detected: boolean;
     retrieval: RetrievalDiagnostic[];
   };
 };

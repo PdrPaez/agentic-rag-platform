@@ -59,6 +59,7 @@ class ChatDiagnostics(BaseModel):
     estimated_output_tokens: int
     context_truncated: bool
     context_chunks: int
+    conflict_detected: bool
     retrieval: list[RetrievalDiagnostic]
 
 
@@ -151,6 +152,7 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
             estimated_output_tokens=len(answer.split()),
             context_truncated=result.context_truncated,
             context_chunks=result.context_chunks,
+            conflict_detected=result.conflict_detected,
         retrieval=[
             RetrievalDiagnostic(
                 chunk_id=candidate.chunk_id,
@@ -165,7 +167,7 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
     )
     answer_status = (
         "tool_result" if "calculator" in result.tools_used
-        else "partial" if result.context_truncated
+        else "partial" if result.context_truncated or result.conflict_detected
         else "answered" if reranked
         else "insufficient_context"
     )
