@@ -49,7 +49,7 @@ const request = async <T,>(path: string, init?: RequestInit): Promise<T> => {
 };
 
 export const listDocuments = () => request<Document[]>("/documents");
-export const seedDemoDocuments = () => request<Document[]>("/documents/demo/seed", { method: "POST" });
+export const seedDemoDocuments = () => request<Document[]>("/demo/seed", { method: "POST" });
 export const uploadDocument = (file: File) => {
   const form = new FormData();
   form.append("file", file);
