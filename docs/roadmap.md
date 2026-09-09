@@ -10,7 +10,7 @@ The latest user-provided master prompt is authoritative for the portfolio upgrad
 
 ## Current implementation checkpoint
 
-The repository is currently synchronized through `ARAG-132`. Recent validated hardening includes deterministic ranking tie-breaking, independent benchmark latency measurement, structured retrieval metadata, recursive trace-secret redaction, controlled provider and demo-seed failures, and complete runtime configuration documentation. The latest backend validation reports 71 passing tests and a clean Ruff run; frontend lint and production build remain part of the promotion gate.
+The repository is currently synchronized through `ARAG-135`. Recent validated hardening includes deterministic ranking tie-breaking, independent benchmark latency measurement, structured retrieval metadata, recursive trace-secret redaction, controlled provider and demo-seed failures, refreshed evaluation artifacts, and complete runtime configuration documentation. The latest backend validation reports 71 passing tests and a clean Ruff run; frontend lint and production build remain part of the promotion gate.
 
 ## Operating rule
 
