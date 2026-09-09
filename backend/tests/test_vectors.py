@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from app.rag.vector_store import LocalVectorStore
 
 
@@ -23,3 +25,17 @@ def test_local_vector_store_upserts_searches_and_deletes_by_document(tmp_path: P
     assert [match.chunk_id for match in store.search([1.0, 0.0, 0.0], limit=2)] == [
         "00000000-0000-0000-0000-000000000002"
     ]
+
+
+def test_local_vector_store_closes_client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    store = LocalVectorStore(str(tmp_path / "vectors"), "chunks")
+    closed = False
+
+    def close() -> None:
+        nonlocal closed
+        closed = True
+
+    monkeypatch.setattr(store.client, "close", close)
+    store.close()
+
+    assert closed is True
