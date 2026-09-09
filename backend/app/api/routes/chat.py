@@ -107,7 +107,12 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
         record_trace(request_id, "reranking_completed", (perf_counter() - rank_started) * 1000, candidates=len(ranked))
         return ranked
 
-    result = BoundedOrchestrator(TimedProvider(get_provider(), timings, request_id), retrieve, rank).run(payload.question)
+    result = BoundedOrchestrator(
+        TimedProvider(get_provider(), timings, request_id),
+        retrieve,
+        rank,
+        max_context_characters=get_settings().max_context_characters,
+    ).run(payload.question)
     GENERATION_LATENCY.observe(timings["generation_latency_ms"] / 1000)
     reranked = result.ranked_candidates
     answer = result.answer

@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     vector_weight: float = 0.6
     chunk_size: int = 800
     chunk_overlap: int = 150
+    max_context_characters: int = 6000
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 

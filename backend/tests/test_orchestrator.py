@@ -58,3 +58,12 @@ def test_orchestrator_enforces_context_budget() -> None:
     result = orchestrator.run("Summarize")
 
     assert len(result.answer) == MAX_CONTEXT_CHARACTERS + len("context=")
+
+
+def test_orchestrator_accepts_configured_context_budget() -> None:
+    candidate = HybridCandidate("chunk", "doc", "x" * 10, 1.0, 0.0, 1.0)
+    orchestrator = BoundedOrchestrator(FakeProvider(), lambda _: [candidate], max_context_characters=10)
+
+    result = orchestrator.run("Summarize")
+
+    assert result.answer == "context=" + ("x" * 10)
