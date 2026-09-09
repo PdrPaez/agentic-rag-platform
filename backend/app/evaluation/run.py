@@ -167,16 +167,22 @@ def evaluate() -> tuple[list[StageResult], float, float]:
             lexical_matches = lexical.search(case.question, 5)
             stage_documents["BM25"].append([match.document_id for match in lexical_matches])
             stage_latencies["BM25"].append((time.perf_counter() - started) * 1000)
+
+            started = time.perf_counter()
             query_vector = embedder.encode([case.question])[0]
             vectors = vector_store.search(query_vector, 5)
             stage_documents["Vector"].append(_document_ids(vectors))
             stage_latencies["Vector"].append((time.perf_counter() - started) * 1000)
+
+            started = time.perf_counter()
             hybrid = retriever.search(case.question, session)
-            reranked = rerank_candidates(case.question, hybrid, reranker, limit=5)
             stage_documents["Hybrid"].append(_document_ids(hybrid))
+            stage_latencies["Hybrid"].append((time.perf_counter() - started) * 1000)
+
+            started = time.perf_counter()
+            reranked = rerank_candidates(case.question, hybrid, reranker, limit=5)
             stage_documents["Hybrid + reranking"].append(_document_ids(reranked))
-            for name in ("Hybrid", "Hybrid + reranking"):
-                stage_latencies[name].append((time.perf_counter() - started) * 1000)
+            stage_latencies["Hybrid + reranking"].append((time.perf_counter() - started) * 1000)
             for name in stage_documents:
                 texts = [chunk.text for chunk in chunks if chunk.document_id in stage_documents[name][-1]]
                 corpus = " ".join(_canonical_tokens(" ".join(texts)))
