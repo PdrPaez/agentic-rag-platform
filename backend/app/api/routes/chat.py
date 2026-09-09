@@ -53,6 +53,7 @@ class ChatDiagnostics(BaseModel):
     reranked_chunks: int
     total_latency_ms: float
     retrieval_latency_ms: float
+    reranking_latency_ms: float
     generation_latency_ms: float
     provider: str
     estimated_input_tokens: int
@@ -109,7 +110,11 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
     request_id = getattr(request.state, "request_id", request.headers.get("x-request-id", str(uuid4())))
     started = perf_counter()
     record_trace(request_id, "request_received", 0.0, operation="chat")
-    timings: dict[str, float] = {"retrieval_latency_ms": 0.0, "generation_latency_ms": 0.0}
+    timings: dict[str, float] = {
+        "retrieval_latency_ms": 0.0,
+        "reranking_latency_ms": 0.0,
+        "generation_latency_ms": 0.0,
+    }
 
     def retrieve(question: str):
         record_trace(request_id, "retrieval_started", 0.0, query_length=len(question))
@@ -125,7 +130,8 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
     def rank(question: str, candidates):
         rank_started = perf_counter()
         ranked = rerank_candidates(question, candidates, get_reranker(), get_settings().final_context_count)
-        record_trace(request_id, "reranking_completed", (perf_counter() - rank_started) * 1000, candidates=len(ranked))
+        timings["reranking_latency_ms"] = (perf_counter() - rank_started) * 1000
+        record_trace(request_id, "reranking_completed", timings["reranking_latency_ms"], candidates=len(ranked))
         return ranked
 
     try:
@@ -153,6 +159,7 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
         reranked_chunks=len(reranked),
         total_latency_ms=(perf_counter() - started) * 1000,
         retrieval_latency_ms=timings["retrieval_latency_ms"],
+        reranking_latency_ms=timings["reranking_latency_ms"],
         generation_latency_ms=generation_latency_ms,
         provider=get_provider().name,
         estimated_input_tokens=len(payload.question.split()) + sum(len(candidate.text.split()) for candidate, _ in reranked),

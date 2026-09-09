@@ -30,9 +30,10 @@ export type ChatResponse = {
     request_id: string;
     retrieved_chunks: number;
     reranked_chunks: number;
-    total_latency_ms: number;
-    retrieval_latency_ms: number;
-    generation_latency_ms: number;
+  total_latency_ms: number;
+  retrieval_latency_ms: number;
+  reranking_latency_ms: number;
+  generation_latency_ms: number;
     provider: string;
     estimated_input_tokens: number;
     estimated_output_tokens: number;
