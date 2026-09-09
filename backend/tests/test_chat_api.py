@@ -27,6 +27,8 @@ class FakeProvider:
     name = "mock"
 
     def generate(self, query: str, context: Sequence[str], tool_result: str | None = None) -> str:
+        if not context:
+            return "I could not find relevant information in the knowledge base."
         return f"Answer from {context[0]}"
 
 
