@@ -11,4 +11,3 @@ vector_store = LocalVectorStore(settings.vector_storage_path, settings.vector_co
 @lru_cache
 def get_embedder() -> SentenceTransformerEmbedder:
     return SentenceTransformerEmbedder(settings.embedding_model_name)
-

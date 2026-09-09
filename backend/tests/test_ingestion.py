@@ -13,7 +13,9 @@ def test_split_text_respects_size_and_overlap() -> None:
 
 
 def test_ingest_markdown_extracts_safe_name_and_chunks() -> None:
-    document = ingest_document("folder/guide.md", b"# Guide\n\nUseful content", chunk_size=10, chunk_overlap=2)
+    document = ingest_document(
+        "folder/guide.md", b"# Guide\n\nUseful content", chunk_size=10, chunk_overlap=2
+    )
 
     assert document.name == "guide.md"
     assert document.source_type == "md"

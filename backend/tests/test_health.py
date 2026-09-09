@@ -34,7 +34,15 @@ def test_public_openapi_routes_have_descriptions() -> None:
     assert paths["/api/demo/seed"]["post"]["summary"] == "Seed the demo corpus"
 
 
-@pytest.mark.parametrize("field", ["max_context_characters", "retrieval_candidate_count", "final_context_count", "llm_timeout_seconds"])
+@pytest.mark.parametrize(
+    "field",
+    [
+        "max_context_characters",
+        "retrieval_candidate_count",
+        "final_context_count",
+        "llm_timeout_seconds",
+    ],
+)
 def test_settings_reject_non_positive_runtime_limits(field: str) -> None:
     with pytest.raises(ValidationError):
         Settings(**{field: 0})

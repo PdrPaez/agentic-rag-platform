@@ -35,7 +35,11 @@ def calculate(expression: str) -> str:
 
 
 def _evaluate(node: ast.expr) -> float:
-    if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)) and not isinstance(node.value, bool):
+    if (
+        isinstance(node, ast.Constant)
+        and isinstance(node.value, (int, float))
+        and not isinstance(node.value, bool)
+    ):
         return float(node.value)
     if isinstance(node, ast.UnaryOp) and type(node.op) in UNARY_OPERATORS:
         return UNARY_OPERATORS[type(node.op)](_evaluate(node.operand))
@@ -46,4 +50,3 @@ def _evaluate(node: ast.expr) -> float:
             raise CalculatorError("Exponent is too large")
         return BINARY_OPERATORS[type(node.op)](left, right)
     raise CalculatorError("Only numeric arithmetic is supported")
-

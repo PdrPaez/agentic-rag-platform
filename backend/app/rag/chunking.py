@@ -30,7 +30,10 @@ def split_text(text: str, chunk_size: int = 800, chunk_overlap: int = 150) -> li
         while overlap_start > start:
             candidate_length = len(words[overlap_start - 1])
             separator_length = 1 if overlap_start < end else 0
-            if overlap_length and overlap_length + separator_length + candidate_length > chunk_overlap:
+            if (
+                overlap_length
+                and overlap_length + separator_length + candidate_length > chunk_overlap
+            ):
                 break
             if not overlap_length and candidate_length > chunk_overlap:
                 break

@@ -6,7 +6,21 @@ from rank_bm25 import BM25Okapi
 from app.db.models import ChunkRecord
 
 TOKEN_PATTERN = re.compile(r"\w+", re.UNICODE)
-STOPWORDS = {"a", "an", "and", "are", "does", "for", "how", "is", "of", "the", "to", "what", "which"}
+STOPWORDS = {
+    "a",
+    "an",
+    "and",
+    "are",
+    "does",
+    "for",
+    "how",
+    "is",
+    "of",
+    "the",
+    "to",
+    "what",
+    "which",
+}
 
 
 def tokenize(text: str) -> list[str]:
@@ -31,7 +45,9 @@ class LexicalIndex:
     def rebuild(self, chunks: list[ChunkRecord]) -> None:
         self._chunks = list(chunks)
         self._chunk_ids = [chunk.id for chunk in self._chunks]
-        self._index = BM25Okapi([tokenize(chunk.text) for chunk in self._chunks]) if chunks else None
+        self._index = (
+            BM25Okapi([tokenize(chunk.text) for chunk in self._chunks]) if chunks else None
+        )
 
     def search(self, query: str, limit: int = 12) -> list[LexicalMatch]:
         if self._index is None or limit <= 0 or not query.strip():
@@ -50,4 +66,3 @@ class LexicalIndex:
             for index in ranked_indexes[:limit]
             if query_tokens.intersection(tokenize(self._chunks[index].text))
         ]
-

@@ -9,7 +9,9 @@ from app.rag.hybrid import HybridCandidate
 
 MAX_STEPS = 3
 MAX_CONTEXT_CHARACTERS = 6000
-CALCULATION_PATTERN = re.compile(r"(?:calculate|compute|what is)\s+([0-9+\-*/().% ]+?)[?!.]*$", re.IGNORECASE)
+CALCULATION_PATTERN = re.compile(
+    r"(?:calculate|compute|what is)\s+([0-9+\-*/().% ]+?)[?!.]*$", re.IGNORECASE
+)
 
 
 @dataclass(frozen=True)
@@ -46,7 +48,8 @@ class BoundedOrchestrator:
         self,
         provider: LLMProvider,
         retrieve: Callable[[str], list[HybridCandidate]],
-        rank: Callable[[str, list[HybridCandidate]], list[tuple[HybridCandidate, float]]] | None = None,
+        rank: Callable[[str, list[HybridCandidate]], list[tuple[HybridCandidate, float]]]
+        | None = None,
         max_context_characters: int = MAX_CONTEXT_CHARACTERS,
     ) -> None:
         self.provider = provider
@@ -69,9 +72,11 @@ class BoundedOrchestrator:
             )
 
         candidates = search_knowledge_base(question, self.retrieve)
-        ranked_candidates = self.rank(question, candidates) if self.rank else [
-            (candidate, candidate.hybrid_score) for candidate in candidates
-        ]
+        ranked_candidates = (
+            self.rank(question, candidates)
+            if self.rank
+            else [(candidate, candidate.hybrid_score) for candidate in candidates]
+        )
         steps += 1
         context: list[str] = []
         total_characters = 0
@@ -83,7 +88,9 @@ class BoundedOrchestrator:
             context.append(candidate.text)
             total_characters += len(candidate.text)
         answer = self.provider.generate(question, context)
-        conflict_detected = detect_conflicting_evidence(question, [candidate for candidate, _ in ranked_candidates])
+        conflict_detected = detect_conflicting_evidence(
+            question, [candidate for candidate, _ in ranked_candidates]
+        )
         return OrchestrationResult(
             answer=answer,
             candidates=candidates,
@@ -94,4 +101,3 @@ class BoundedOrchestrator:
             context_chunks=len(context),
             conflict_detected=conflict_detected,
         )
-

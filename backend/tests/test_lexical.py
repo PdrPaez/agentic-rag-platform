@@ -11,9 +11,15 @@ def test_lexical_index_ranks_matching_chunk_and_rebuilds() -> None:
     index = LexicalIndex()
     index.rebuild(
         [
-            ChunkRecord(id="chunk-a", document_id="doc-a", chunk_index=0, text="Python deployment guide"),
-            ChunkRecord(id="chunk-b", document_id="doc-b", chunk_index=0, text="Vector search guide"),
-            ChunkRecord(id="chunk-c", document_id="doc-c", chunk_index=0, text="Frontend interface guide"),
+            ChunkRecord(
+                id="chunk-a", document_id="doc-a", chunk_index=0, text="Python deployment guide"
+            ),
+            ChunkRecord(
+                id="chunk-b", document_id="doc-b", chunk_index=0, text="Vector search guide"
+            ),
+            ChunkRecord(
+                id="chunk-c", document_id="doc-c", chunk_index=0, text="Frontend interface guide"
+            ),
         ]
     )
 
