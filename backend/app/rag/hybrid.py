@@ -52,13 +52,19 @@ def combine_results(
         bm25_score = lexical.bm25_score if lexical else 0.0
         candidates[match.chunk_id] = HybridCandidate(
             chunk_id=match.chunk_id,
-            document_id=str(match.payload.get("document_id", lexical.document_id if lexical else "")),
+            document_id=str(
+                match.payload.get("document_id", lexical.document_id if lexical else "")
+            ),
             text=str(match.payload.get("text", lexical.text if lexical else "")),
             bm25_score=bm25_score,
             vector_score=vector_score,
             hybrid_score=bm25_score * lexical_weight + vector_score * vector_weight,
-            document_name=str(match.payload.get("document_name", lexical.document_name if lexical else "")),
-            chunk_index=int(match.payload.get("chunk_index", lexical.chunk_index if lexical else 0)),
+            document_name=str(
+                match.payload.get("document_name", lexical.document_name if lexical else "")
+            ),
+            chunk_index=int(
+                match.payload.get("chunk_index", lexical.chunk_index if lexical else 0)
+            ),
         )
 
     weight_total = lexical_weight + vector_weight
@@ -67,4 +73,3 @@ def combine_results(
         key=lambda candidate: (-candidate.hybrid_score / weight_total, candidate.chunk_id),
     )
     return ranked[:limit]
-

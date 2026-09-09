@@ -6,4 +6,3 @@ def min_max_normalize(scores: list[float]) -> list[float]:
     if maximum == minimum:
         return [1.0 if maximum != 0 else 0.0 for _ in scores]
     return [(score - minimum) / (maximum - minimum) for score in scores]
-

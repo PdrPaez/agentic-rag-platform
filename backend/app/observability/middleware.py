@@ -35,7 +35,11 @@ class RequestObservabilityMiddleware(BaseHTTPMiddleware):
         response.headers["x-request-id"] = request_id
         logger.info(
             "request_completed",
-            extra={"request_id": request_id, "method": request.method, "path": path, "duration_ms": duration * 1000},
+            extra={
+                "request_id": request_id,
+                "method": request.method,
+                "path": path,
+                "duration_ms": duration * 1000,
+            },
         )
         return response
-

@@ -27,7 +27,9 @@ class LocalVectorStore:
             vectors_config=VectorParams(size=dimension, distance=Distance.COSINE),
         )
 
-    def upsert(self, chunk_ids: list[str], vectors: list[list[float]], payloads: list[dict[str, Any]]) -> None:
+    def upsert(
+        self, chunk_ids: list[str], vectors: list[list[float]], payloads: list[dict[str, Any]]
+    ) -> None:
         if not chunk_ids or len(chunk_ids) != len(vectors) or len(vectors) != len(payloads):
             raise ValueError("Chunk IDs, vectors, and payloads must have matching non-zero lengths")
         self.client.upsert(
@@ -60,4 +62,3 @@ class LocalVectorStore:
                 must=[FieldCondition(key="document_id", match=MatchValue(value=document_id))]
             ),
         )
-

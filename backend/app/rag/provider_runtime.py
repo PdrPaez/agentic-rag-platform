@@ -14,4 +14,3 @@ def get_provider() -> LLMProvider:
         settings.llm_base_url,
         settings.llm_timeout_seconds,
     )
-
