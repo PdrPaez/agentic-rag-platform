@@ -15,6 +15,7 @@ from app.observability.metrics import (
     GENERATION_LATENCY,
     PROVIDER_FAILURE_COUNT,
     PROVIDER_REQUEST_COUNT,
+    RERANKING_LATENCY,
     RETRIEVAL_LATENCY,
 )
 from app.observability.traces import record_trace
@@ -144,6 +145,7 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
         rank_started = perf_counter()
         ranked = rerank_candidates(question, candidates, get_reranker(), get_settings().final_context_count)
         timings["reranking_latency_ms"] = (perf_counter() - rank_started) * 1000
+        RERANKING_LATENCY.observe(timings["reranking_latency_ms"] / 1000)
         record_trace(request_id, "reranking_completed", timings["reranking_latency_ms"], candidates=len(ranked))
         return ranked
 

@@ -16,6 +16,7 @@ def test_requests_return_request_id_and_metrics_endpoint_is_available() -> None:
     assert b"rag_answer_status_total" in metrics.content
     assert "rag_http_requests_total" in metrics.text
     assert "rag_retrieval_latency_seconds" in metrics.text
+    assert "rag_reranking_latency_seconds" in metrics.text
     assert "rag_document_ingestion_total" in metrics.text
     assert client.get("/health").status_code == 200
     assert client.get("/metrics").status_code == 200
