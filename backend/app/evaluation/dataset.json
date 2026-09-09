@@ -27,5 +27,6 @@
   {"question": "What is the office parking reimbursement policy?", "expected_document": "", "expected_facts": []},
   {"question": "Which vendor supplies the company's travel insurance?", "expected_document": "", "expected_facts": []},
   {"question": "What is the legal retention period for customer recordings?", "expected_document": "", "expected_facts": []},
-  {"question": "Does the corpus define a cafeteria menu rotation?", "expected_document": "", "expected_facts": []}
+  {"question": "Does the corpus define a cafeteria menu rotation?", "expected_document": "", "expected_facts": []},
+  {"question": "What is the employee relocation allowance?", "expected_document": "", "expected_facts": []}
 ]
