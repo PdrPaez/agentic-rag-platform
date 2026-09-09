@@ -150,8 +150,9 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
         return ranked
 
     try:
+        provider = get_provider()
         result = BoundedOrchestrator(
-            TimedProvider(get_provider(), timings, request_id),
+            TimedProvider(provider, timings, request_id),
             retrieve,
             rank,
             max_context_characters=get_settings().max_context_characters,
@@ -178,7 +179,7 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
         retrieval_latency_ms=timings["retrieval_latency_ms"],
         reranking_latency_ms=timings["reranking_latency_ms"],
         generation_latency_ms=generation_latency_ms,
-        provider=get_provider().name,
+        provider=provider.name,
         estimated_input_tokens=len(payload.question.split()) + sum(len(candidate.text.split()) for candidate, _ in reranked),
             estimated_output_tokens=len(answer.split()),
             context_truncated=result.context_truncated,
