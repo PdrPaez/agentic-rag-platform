@@ -19,6 +19,11 @@ class EmptyRetriever:
         return []
 
 
+class OversizedRetriever:
+    def search(self, question: str, session: object) -> list[HybridCandidate]:
+        return [HybridCandidate("large-chunk", "doc-1", "x" * 6001, 1.0, 0.5, 0.8, "Guide.md")]
+
+
 class FakeReranker:
     def score(self, query: str, texts: Sequence[str]) -> list[float]:
         return [0.9 for _ in texts]
@@ -115,6 +120,24 @@ def test_chat_returns_service_unavailable_when_provider_is_down() -> None:
         assert response.json()["detail"] == "The LLM provider is unavailable"
         request_id = response.headers["x-request-id"]
         assert any(stage["stage"] == "generation_failed" for stage in (get_trace(request_id) or []))
+    finally:
+        chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider = original
+        app.dependency_overrides.clear()
+
+
+def test_chat_reports_partial_when_context_budget_truncates() -> None:
+    app.dependency_overrides[get_session] = lambda: iter([object()])
+    original = (chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider)
+    chat_route.get_retriever = lambda: OversizedRetriever()
+    chat_route.get_reranker = lambda: FakeReranker()
+    chat_route.get_provider = lambda: FakeProvider()
+    try:
+        response = TestClient(app).post("/api/chat", json={"question": "Summarize the guide"})
+
+        body = response.json()
+        assert response.status_code == 200
+        assert body["answer_status"] == "partial"
+        assert body["citations"][0]["chunk_id"] == "large-chunk"
     finally:
         chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider = original
         app.dependency_overrides.clear()

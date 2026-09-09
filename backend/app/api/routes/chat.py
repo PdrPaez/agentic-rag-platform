@@ -61,7 +61,7 @@ class ChatDiagnostics(BaseModel):
 
 class ChatResponse(BaseModel):
     answer: str
-    answer_status: Literal["answered", "insufficient_context", "tool_result"]
+    answer_status: Literal["answered", "partial", "insufficient_context", "tool_result"]
     citations: list[Citation]
     tools_used: list[str]
     diagnostics: ChatDiagnostics
