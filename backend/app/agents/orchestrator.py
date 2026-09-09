@@ -8,6 +8,7 @@ from app.llm.providers import LLMProvider
 from app.rag.hybrid import HybridCandidate
 
 MAX_STEPS = 3
+MAX_CONTEXT_CHARACTERS = 6000
 CALCULATION_PATTERN = re.compile(r"(?:calculate|compute|what is)\s+([0-9+\-*/().% ]+?)[?!.]*$", re.IGNORECASE)
 
 
@@ -50,7 +51,14 @@ class BoundedOrchestrator:
             (candidate, candidate.hybrid_score) for candidate in candidates
         ]
         steps += 1
-        answer = self.provider.generate(question, [candidate.text for candidate, _ in ranked_candidates])
+        context: list[str] = []
+        total_characters = 0
+        for candidate, _ in ranked_candidates:
+            if total_characters + len(candidate.text) > MAX_CONTEXT_CHARACTERS:
+                break
+            context.append(candidate.text)
+            total_characters += len(candidate.text)
+        answer = self.provider.generate(question, context)
         return OrchestrationResult(
             answer=answer,
             candidates=candidates,
