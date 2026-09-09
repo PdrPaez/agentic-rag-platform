@@ -23,5 +23,9 @@
   {"question": "Summarize the incident commander timing and customer update channel.", "expected_document": "incident-response.md", "expected_facts": ["incident commander", "public status page"]},
   {"question": "What are the engineering language and style constraints?", "expected_document": "engineering-handbook.md", "expected_facts": ["Python 3.11", "Ruff", "100 characters"]},
   {"question": "Is there a policy for quantum coffee reimbursements?", "expected_document": "", "expected_facts": []},
-  {"question": "Which system keeps the searchable vector index locally?", "expected_document": "architecture.md", "expected_facts": ["Qdrant", "vector"]}
+  {"question": "Which system keeps the searchable vector index locally?", "expected_document": "architecture.md", "expected_facts": ["Qdrant", "vector"]},
+  {"question": "What is the office parking reimbursement policy?", "expected_document": "", "expected_facts": []},
+  {"question": "Which vendor supplies the company's travel insurance?", "expected_document": "", "expected_facts": []},
+  {"question": "What is the legal retention period for customer recordings?", "expected_document": "", "expected_facts": []},
+  {"question": "Does the corpus define a cafeteria menu rotation?", "expected_document": "", "expected_facts": []}
 ]

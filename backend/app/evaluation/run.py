@@ -102,8 +102,8 @@ def _cosine(left: Sequence[float], right: Sequence[float]) -> float:
 
 def load_cases() -> list[EvaluationCase]:
     data = json.loads((ROOT / "dataset.json").read_text(encoding="utf-8"))
-    if len(data) != 25:
-        raise ValueError("The bundled evaluation dataset must contain exactly 25 cases")
+    if len(data) != 29:
+        raise ValueError("The bundled evaluation dataset must contain exactly 29 cases")
     return [EvaluationCase(item["question"], item["expected_document"], tuple(item["expected_facts"])) for item in data]
 
 

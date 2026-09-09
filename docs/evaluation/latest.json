@@ -1,53 +1,53 @@
 {
-  "dataset_cases": 25,
+  "dataset_cases": 29,
   "strategies": [
     {
       "name": "BM25",
-      "hit_rate_at_1": 0.88,
-      "hit_rate_at_3": 0.96,
-      "hit_rate_at_5": 0.96,
-      "recall_at_5": 0.96,
-      "mean_reciprocal_rank": 0.92,
-      "average_latency_ms": 0.4417199993622489,
-      "p50_latency_ms": 0.3301999968243763,
-      "p95_latency_ms": 0.3617999973357655,
-      "fact_coverage": 0.96
+      "hit_rate_at_1": 0.7586206896551724,
+      "hit_rate_at_3": 0.8275862068965517,
+      "hit_rate_at_5": 0.8275862068965517,
+      "recall_at_5": 0.8275862068965517,
+      "mean_reciprocal_rank": 0.7931034482758621,
+      "average_latency_ms": 0.4245517246027734,
+      "p50_latency_ms": 0.3285000057076104,
+      "p95_latency_ms": 0.37629999860655516,
+      "fact_coverage": 0.8275862068965517
     },
     {
       "name": "Vector",
-      "hit_rate_at_1": 0.56,
-      "hit_rate_at_3": 0.92,
-      "hit_rate_at_5": 0.96,
-      "recall_at_5": 0.96,
-      "mean_reciprocal_rank": 0.73,
-      "average_latency_ms": 0.5242919991724193,
-      "p50_latency_ms": 0.4107999993721023,
-      "p95_latency_ms": 0.450699997600168,
-      "fact_coverage": 0.96
+      "hit_rate_at_1": 0.4827586206896552,
+      "hit_rate_at_3": 0.7931034482758621,
+      "hit_rate_at_5": 0.8275862068965517,
+      "recall_at_5": 0.8275862068965517,
+      "mean_reciprocal_rank": 0.6293103448275862,
+      "average_latency_ms": 0.5074379321364365,
+      "p50_latency_ms": 0.4087000052095391,
+      "p95_latency_ms": 0.4610999967553653,
+      "fact_coverage": 0.8275862068965517
     },
     {
       "name": "Hybrid",
-      "hit_rate_at_1": 0.84,
-      "hit_rate_at_3": 0.96,
-      "hit_rate_at_5": 0.96,
-      "recall_at_5": 0.96,
-      "mean_reciprocal_rank": 0.8933333333333333,
-      "average_latency_ms": 1.2237280001863837,
-      "p50_latency_ms": 1.102900001569651,
-      "p95_latency_ms": 1.1901999969268218,
-      "fact_coverage": 0.96
+      "hit_rate_at_1": 0.7241379310344828,
+      "hit_rate_at_3": 0.8275862068965517,
+      "hit_rate_at_5": 0.8275862068965517,
+      "recall_at_5": 0.8275862068965517,
+      "mean_reciprocal_rank": 0.7701149425287356,
+      "average_latency_ms": 1.2038793105728411,
+      "p50_latency_ms": 1.0991000017384067,
+      "p95_latency_ms": 1.192099996842444,
+      "fact_coverage": 0.8275862068965517
     },
     {
       "name": "Hybrid + reranking",
-      "hit_rate_at_1": 0.84,
-      "hit_rate_at_3": 0.92,
-      "hit_rate_at_5": 0.96,
-      "recall_at_5": 0.96,
-      "mean_reciprocal_rank": 0.888,
-      "average_latency_ms": 1.224139999540057,
-      "p50_latency_ms": 1.1031999965780415,
-      "p95_latency_ms": 1.1905999999726191,
-      "fact_coverage": 0.96
+      "hit_rate_at_1": 0.7241379310344828,
+      "hit_rate_at_3": 0.7931034482758621,
+      "hit_rate_at_5": 0.8275862068965517,
+      "recall_at_5": 0.8275862068965517,
+      "mean_reciprocal_rank": 0.7655172413793103,
+      "average_latency_ms": 1.2043103465814433,
+      "p50_latency_ms": 1.099500004784204,
+      "p95_latency_ms": 1.1926000006496906,
+      "fact_coverage": 0.8275862068965517
     }
   ]
 }
