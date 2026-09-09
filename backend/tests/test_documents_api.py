@@ -24,8 +24,20 @@ def test_document_api_upload_list_and_delete(tmp_path: Path) -> None:
         def encode(self, texts: list[str]) -> list[list[float]]:
             return [[1.0, 0.0] for _ in texts]
 
+    class FakeVectorStore:
+        def ensure_collection(self, dimension: int) -> None:
+            pass
+
+        def upsert(self, chunk_ids, vectors, payloads) -> None:
+            pass
+
+        def delete_document(self, document_id: str) -> None:
+            pass
+
     original_embedder = documents_route.get_embedder
+    original_vector_store = documents_route.vector_store
     documents_route.get_embedder = lambda: FakeEmbedder()
+    documents_route.vector_store = FakeVectorStore()
     try:
         client = TestClient(app)
         upload = client.post("/api/documents", files={"file": ("notes.txt", b"Project notes")})
@@ -37,4 +49,5 @@ def test_document_api_upload_list_and_delete(tmp_path: Path) -> None:
         assert client.get("/api/documents").json() == []
     finally:
         documents_route.get_embedder = original_embedder
+        documents_route.vector_store = original_vector_store
         app.dependency_overrides.clear()
