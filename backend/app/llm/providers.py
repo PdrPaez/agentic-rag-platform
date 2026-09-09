@@ -55,7 +55,10 @@ class OpenAICompatibleProvider:
             response.raise_for_status()
         except httpx.HTTPError as exc:
             raise RuntimeError("The LLM provider is unavailable") from exc
-        data = response.json()
+        try:
+            data = response.json()
+        except (TypeError, ValueError) as exc:
+            raise ValueError("The LLM provider returned an invalid response") from exc
         try:
             content = data["choices"][0]["message"]["content"]
             if not isinstance(content, str) or not content.strip():
