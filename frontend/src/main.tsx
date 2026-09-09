@@ -25,7 +25,13 @@ function App() {
       setMessage("Conflicting evidence found: review both cited sources.");
       return;
     }
-    setMessage(`Answer status: ${activeResponse.answer_status.replaceAll("_", " ")}`);
+    const statusMessages: Record<ChatResponse["answer_status"], string> = {
+      answered: "Answer grounded in retrieved context.",
+      partial: "Answer is partial: review the cited context.",
+      insufficient_context: "No sufficient context found: add a relevant document or refine the question.",
+      tool_result: "Answer produced by the calculator tool.",
+    };
+    setMessage(statusMessages[activeResponse.answer_status]);
   }, [activeResponse]);
 
   const handleUpload = async (file: File) => {
