@@ -232,6 +232,7 @@ The backend reads environment variables from backend/.env.
 ~~~powershell
 cd backend
 python -m pytest -q
+python -m pytest --cov=app --cov-fail-under=85 -q
 python -m ruff check app tests
 python -m app.evaluation.run
 
