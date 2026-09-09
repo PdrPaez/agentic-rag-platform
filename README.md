@@ -96,6 +96,18 @@ universal RAG performance.
 Run `python -m app.evaluation.run` from `backend` to reproduce the benchmark. The complete generated results are
 available in [docs/evaluation/](docs/evaluation/), including JSON and Markdown reports.
 
+## Architecture decisions
+
+The concise ADRs in [docs/adr/](docs/adr/) explain the implemented trade-offs:
+
+- [No high-level RAG framework](docs/adr/001-no-high-level-rag-framework.md)
+- [Hybrid retrieval](docs/adr/002-hybrid-retrieval.md)
+- [CrossEncoder reranking](docs/adr/003-crossencoder-reranking.md)
+- [SQLite plus local Qdrant](docs/adr/004-sqlite-local-qdrant.md)
+- [Bounded orchestration](docs/adr/005-bounded-orchestration.md)
+- [Deterministic mock provider](docs/adr/006-deterministic-mock-provider.md)
+- [Grounded answer contract](docs/adr/007-grounded-answer-contract.md)
+
 ## Grounded answer behavior
 
 The chat contract exposes `answer_status` so a response does not imply more certainty than the indexed evidence
