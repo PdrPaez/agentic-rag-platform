@@ -110,7 +110,12 @@ class TimedProvider:
             record_trace(self.request_id, "generation_failed", 0.0, provider=self.name)
             raise RuntimeError("The LLM provider returned an invalid response") from exc
         self.timings["generation_latency_ms"] = (perf_counter() - started) * 1000
-        record_trace(self.request_id, "generation_completed", self.timings["generation_latency_ms"], provider=self.name)
+        record_trace(
+            self.request_id,
+            "generation_completed",
+            self.timings["generation_latency_ms"],
+            provider=self.name,
+        )
         return answer
 
 
@@ -120,8 +125,12 @@ class TimedProvider:
     summary="Ask the bounded RAG agent",
     description="Retrieve grounded context, optionally use the calculator, and return citations plus execution diagnostics.",
 )
-def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_session)) -> ChatResponse:
-    request_id = getattr(request.state, "request_id", request.headers.get("x-request-id", str(uuid4())))
+def chat(
+    payload: ChatRequest, request: Request, session: Session = Depends(get_session)
+) -> ChatResponse:
+    request_id = getattr(
+        request.state, "request_id", request.headers.get("x-request-id", str(uuid4()))
+    )
     started = perf_counter()
     record_trace(request_id, "request_received", 0.0, operation="chat")
     timings: dict[str, float] = {
@@ -136,17 +145,29 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
         candidates = get_retriever().search(question, session)
         timings["retrieval_latency_ms"] = (perf_counter() - retrieval_started) * 1000
         RETRIEVAL_LATENCY.observe(timings["retrieval_latency_ms"] / 1000)
-        record_trace(request_id, "retrieval_completed", timings["retrieval_latency_ms"], candidates=len(candidates))
+        record_trace(
+            request_id,
+            "retrieval_completed",
+            timings["retrieval_latency_ms"],
+            candidates=len(candidates),
+        )
         if candidates:
             record_trace(request_id, "tool_called", 0.0, tools=["search_knowledge_base"])
         return candidates
 
     def rank(question: str, candidates):
         rank_started = perf_counter()
-        ranked = rerank_candidates(question, candidates, get_reranker(), get_settings().final_context_count)
+        ranked = rerank_candidates(
+            question, candidates, get_reranker(), get_settings().final_context_count
+        )
         timings["reranking_latency_ms"] = (perf_counter() - rank_started) * 1000
         RERANKING_LATENCY.observe(timings["reranking_latency_ms"] / 1000)
-        record_trace(request_id, "reranking_completed", timings["reranking_latency_ms"], candidates=len(ranked))
+        record_trace(
+            request_id,
+            "reranking_completed",
+            timings["reranking_latency_ms"],
+            candidates=len(ranked),
+        )
         return ranked
 
     try:
@@ -164,7 +185,9 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
             raise
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except ValueError as exc:
-        raise HTTPException(status_code=400, detail="The requested tool operation is invalid") from exc
+        raise HTTPException(
+            status_code=400, detail="The requested tool operation is invalid"
+        ) from exc
     GENERATION_LATENCY.observe(timings["generation_latency_ms"] / 1000)
     reranked = result.ranked_candidates
     answer = result.answer
@@ -180,11 +203,12 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
         reranking_latency_ms=timings["reranking_latency_ms"],
         generation_latency_ms=generation_latency_ms,
         provider=provider.name,
-        estimated_input_tokens=len(payload.question.split()) + sum(len(candidate.text.split()) for candidate, _ in reranked),
-            estimated_output_tokens=len(answer.split()),
-            context_truncated=result.context_truncated,
-            context_chunks=result.context_chunks,
-            conflict_detected=result.conflict_detected,
+        estimated_input_tokens=len(payload.question.split())
+        + sum(len(candidate.text.split()) for candidate, _ in reranked),
+        estimated_output_tokens=len(answer.split()),
+        context_truncated=result.context_truncated,
+        context_chunks=result.context_chunks,
+        conflict_detected=result.conflict_detected,
         retrieval=[
             RetrievalDiagnostic(
                 chunk_id=candidate.chunk_id,
@@ -200,9 +224,12 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
         ],
     )
     answer_status = (
-        "tool_result" if "calculator" in result.tools_used
-        else "partial" if result.context_truncated or result.conflict_detected
-        else "answered" if reranked
+        "tool_result"
+        if "calculator" in result.tools_used
+        else "partial"
+        if result.context_truncated or result.conflict_detected
+        else "answered"
+        if reranked
         else "insufficient_context"
     )
     ANSWER_STATUS_COUNT.labels(answer_status).inc()

@@ -41,7 +41,11 @@ def evaluate_bundled_answer_behavior() -> AnswerBehaviorSummary:
     with Session(engine) as session:
         session.add_all(chunks)
         session.commit()
-        retriever = HybridRetriever(embedder, DeterministicVectorStore(chunks, embedder), Settings(retrieval_candidate_count=5))
+        retriever = HybridRetriever(
+            embedder,
+            DeterministicVectorStore(chunks, embedder),
+            Settings(retrieval_candidate_count=5),
+        )
         retrieved = [retriever.search(case.question, session) for case in cases]
     return evaluate_answer_behavior(cases, retrieved)
 

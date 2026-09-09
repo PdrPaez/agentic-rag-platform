@@ -5,8 +5,7 @@ from app.rag.hybrid import HybridCandidate
 
 
 class Reranker(Protocol):
-    def score(self, query: str, texts: Sequence[str]) -> list[float]:
-        ...
+    def score(self, query: str, texts: Sequence[str]) -> list[float]: ...
 
 
 class CrossEncoderReranker:
@@ -33,4 +32,3 @@ def rerank_candidates(
         key=lambda item: (-item[1], item[0].chunk_id),
     )
     return ranked[:limit]
-

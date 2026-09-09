@@ -56,4 +56,3 @@ def _extract_text(extension: str, content: bytes) -> str:
         return content.decode("utf-8")
     reader = PdfReader(BytesIO(content))
     return "\n".join(page.extract_text() or "" for page in reader.pages)
-

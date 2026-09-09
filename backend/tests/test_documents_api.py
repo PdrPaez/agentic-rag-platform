@@ -18,6 +18,7 @@ def test_document_api_upload_list_and_delete(tmp_path: Path) -> None:
             yield session
 
     app.dependency_overrides[get_session] = override_session
+
     class FakeEmbedder:
         dimension = 2
 
