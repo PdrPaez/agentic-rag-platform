@@ -22,6 +22,14 @@ def test_requests_return_request_id_and_metrics_endpoint_is_available() -> None:
     assert client.get("/metrics").status_code == 200
 
 
+def test_invalid_request_id_is_replaced_with_safe_identifier() -> None:
+    response = TestClient(app).get("/api/health", headers={"x-request-id": "a" * 129})
+
+    assert response.status_code == 200
+    assert response.headers["x-request-id"] != "a" * 129
+    assert len(response.headers["x-request-id"]) <= 128
+
+
 def test_trace_endpoint_returns_recorded_trace() -> None:
     record_trace("trace-test", "request_received", 0.0, operation="test")
 

@@ -1,4 +1,5 @@
 import logging
+import re
 from time import perf_counter
 from uuid import uuid4
 
@@ -9,11 +10,17 @@ from starlette.responses import Response
 from app.observability.metrics import ERROR_COUNT, REQUEST_COUNT, REQUEST_LATENCY
 
 logger = logging.getLogger("agentic_rag_platform")
+REQUEST_ID_PATTERN = re.compile(r"^[A-Za-z0-9._:-]{1,128}$")
+
+
+def _request_id(request: Request) -> str:
+    supplied = request.headers.get("x-request-id", "")
+    return supplied if REQUEST_ID_PATTERN.fullmatch(supplied) else str(uuid4())
 
 
 class RequestObservabilityMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
-        request_id = request.headers.get("x-request-id", str(uuid4()))
+        request_id = _request_id(request)
         request.state.request_id = request_id
         started = perf_counter()
         try:
