@@ -13,6 +13,11 @@ class FakeRetriever:
         return [HybridCandidate("chunk-1", "doc-1", "Useful context", 1.0, 0.5, 0.8, "Guide.md")]
 
 
+class EmptyRetriever:
+    def search(self, question: str, session: object) -> list[HybridCandidate]:
+        return []
+
+
 class FakeReranker:
     def score(self, query: str, texts: Sequence[str]) -> list[float]:
         return [0.9 for _ in texts]
@@ -65,6 +70,25 @@ def test_chat_uses_calculator_tool_without_citations() -> None:
         assert body["citations"] == []
         assert body["tools_used"] == ["calculator"]
         assert body["answer_status"] == "tool_result"
+    finally:
+        chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider = original
+        app.dependency_overrides.clear()
+
+
+def test_chat_reports_insufficient_context_without_citations() -> None:
+    app.dependency_overrides[get_session] = lambda: iter([object()])
+    original = (chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider)
+    chat_route.get_retriever = lambda: EmptyRetriever()
+    chat_route.get_reranker = lambda: FakeReranker()
+    chat_route.get_provider = lambda: FakeProvider()
+    try:
+        response = TestClient(app).post("/api/chat", json={"question": "Unknown topic?"})
+
+        body = response.json()
+        assert response.status_code == 200
+        assert body["answer_status"] == "insufficient_context"
+        assert body["citations"] == []
+        assert body["tools_used"] == []
     finally:
         chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider = original
         app.dependency_overrides.clear()
