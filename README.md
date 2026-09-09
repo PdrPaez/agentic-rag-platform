@@ -1,5 +1,7 @@
 # Agentic RAG Platform
 
+[![CI](https://github.com/PdrPaez/agentic-rag-platform/actions/workflows/checks.yml/badge.svg)](https://github.com/PdrPaez/agentic-rag-platform/actions/workflows/checks.yml)
+
 Agentic RAG Platform is a local-first retrieval-augmented generation workspace for answers that can be inspected, reproduced, and troubleshot.
 
 It ingests local documents, persists metadata and chunks in SQLite, indexes embeddings in local Qdrant, combines BM25 and dense retrieval, reranks candidates with a CrossEncoder, and returns answers with citations, tool usage, timings, scores, and request traces.
