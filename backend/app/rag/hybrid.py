@@ -14,6 +14,7 @@ class HybridCandidate:
     vector_score: float
     hybrid_score: float
     document_name: str = ""
+    chunk_index: int = 0
 
 
 def combine_results(
@@ -42,6 +43,7 @@ def combine_results(
             vector_score=0.0,
             hybrid_score=normalized_lexical[index] * lexical_weight,
             document_name=match.document_id,
+            chunk_index=match.chunk_index,
         )
 
     for index, match in enumerate(vector_matches):
@@ -56,6 +58,7 @@ def combine_results(
             vector_score=vector_score,
             hybrid_score=bm25_score * lexical_weight + vector_score * vector_weight,
             document_name=str(match.payload.get("document_name", lexical.document_name if lexical else "")),
+            chunk_index=int(match.payload.get("chunk_index", lexical.chunk_index if lexical else 0)),
         )
 
     weight_total = lexical_weight + vector_weight

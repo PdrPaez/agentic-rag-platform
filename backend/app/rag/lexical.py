@@ -19,6 +19,7 @@ class LexicalMatch:
     score: float
     text: str
     document_id: str
+    chunk_index: int = 0
 
 
 class LexicalIndex:
@@ -44,6 +45,7 @@ class LexicalIndex:
                 score=float(scores[index]),
                 text=self._chunks[index].text,
                 document_id=self._chunks[index].document_id,
+                chunk_index=self._chunks[index].chunk_index,
             )
             for index in ranked_indexes[:limit]
             if query_tokens.intersection(tokenize(self._chunks[index].text))

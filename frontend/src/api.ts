@@ -19,6 +19,8 @@ export type RetrievalDiagnostic = {
   vector_score: number;
   hybrid_score: number;
   reranker_score: number;
+  final_rank: number;
+  chunk_index: number;
 };
 
 export type ChatResponse = {
