@@ -197,12 +197,19 @@ def evaluate() -> tuple[list[StageResult], float, float]:
 def write_artifacts(results: list[StageResult]) -> None:
     destination = ROOT.parent.parent.parent / "docs" / "evaluation"
     destination.mkdir(parents=True, exist_ok=True)
-    payload = {"dataset_cases": len(load_cases()), "strategies": [result.__dict__ for result in results]}
+    cases = load_cases()
+    negative_cases = sum(not case.expected_document and not case.expected_facts for case in cases)
+    payload = {
+        "dataset_cases": len(cases),
+        "negative_cases": negative_cases,
+        "negative_case_ratio": negative_cases / len(cases),
+        "strategies": [result.__dict__ for result in results],
+    }
     (destination / "latest.json").write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     lines = [
         "# Retrieval evaluation",
         "",
-        "Deterministic benchmark on the bundled corpus. Fact coverage uses normalized text matching and is not semantic factuality evaluation.",
+        f"Deterministic benchmark on the bundled corpus ({len(cases)} cases; {negative_cases / len(cases):.0%} negative). Fact coverage uses normalized text matching and is not semantic factuality evaluation.",
         "",
         "| Strategy | Hit@1 | Hit@3 | Hit@5 | Recall@5 | MRR | Fact coverage | Avg ms | P50 ms | P95 ms |",
         "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",

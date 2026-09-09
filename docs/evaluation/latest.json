@@ -1,5 +1,7 @@
 {
   "dataset_cases": 30,
+  "negative_cases": 6,
+  "negative_case_ratio": 0.2,
   "strategies": [
     {
       "name": "BM25",
@@ -8,9 +10,9 @@
       "hit_rate_at_5": 0.8,
       "recall_at_5": 0.8,
       "mean_reciprocal_rank": 0.7666666666666667,
-      "average_latency_ms": 0.4246933346924682,
-      "p50_latency_ms": 0.33039999834727496,
-      "p95_latency_ms": 0.37570000131381676,
+      "average_latency_ms": 0.4273566667203947,
+      "p50_latency_ms": 0.3311000036774203,
+      "p95_latency_ms": 0.43339999683666974,
       "fact_coverage": 0.8
     },
     {
@@ -20,9 +22,9 @@
       "hit_rate_at_5": 0.8,
       "recall_at_5": 0.8,
       "mean_reciprocal_rank": 0.6083333333333333,
-      "average_latency_ms": 0.5068766671077659,
-      "p50_latency_ms": 0.4117999997106381,
-      "p95_latency_ms": 0.46160000056261197,
+      "average_latency_ms": 0.5105733335464416,
+      "p50_latency_ms": 0.41169999894918874,
+      "p95_latency_ms": 0.519900000654161,
       "fact_coverage": 0.8
     },
     {
@@ -32,9 +34,9 @@
       "hit_rate_at_5": 0.8,
       "recall_at_5": 0.8,
       "mean_reciprocal_rank": 0.7444444444444444,
-      "average_latency_ms": 1.2008466670522466,
-      "p50_latency_ms": 1.0994999975082465,
-      "p95_latency_ms": 1.1871999959112145,
+      "average_latency_ms": 1.2117566666953887,
+      "p50_latency_ms": 1.1071000044466928,
+      "p95_latency_ms": 1.2736999997287057,
       "fact_coverage": 0.8
     },
     {
@@ -44,9 +46,9 @@
       "hit_rate_at_5": 0.8,
       "recall_at_5": 0.8,
       "mean_reciprocal_rank": 0.74,
-      "average_latency_ms": 1.2012566670212739,
-      "p50_latency_ms": 1.0997999997925945,
-      "p95_latency_ms": 1.1876999997184612,
+      "average_latency_ms": 1.212176666983093,
+      "p50_latency_ms": 1.1075000002165325,
+      "p95_latency_ms": 1.274100002774503,
       "fact_coverage": 0.8
     }
   ]
