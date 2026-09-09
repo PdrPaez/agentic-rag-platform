@@ -6,7 +6,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
-from app.observability.metrics import REQUEST_COUNT, REQUEST_LATENCY
+from app.observability.metrics import ERROR_COUNT, REQUEST_COUNT, REQUEST_LATENCY
 
 logger = logging.getLogger("agentic_rag_platform")
 
@@ -14,8 +14,13 @@ logger = logging.getLogger("agentic_rag_platform")
 class RequestObservabilityMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next) -> Response:
         request_id = request.headers.get("x-request-id", str(uuid4()))
+        request.state.request_id = request_id
         started = perf_counter()
-        response = await call_next(request)
+        try:
+            response = await call_next(request)
+        except Exception:
+            ERROR_COUNT.labels("unhandled_request").inc()
+            raise
         duration = perf_counter() - started
         path = request.url.path
         REQUEST_COUNT.labels(request.method, path, str(response.status_code)).inc()

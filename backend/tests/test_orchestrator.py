@@ -26,5 +26,5 @@ def test_orchestrator_searches_knowledge_for_non_calculation_questions() -> None
     result = orchestrator.run("Explain the context")
 
     assert result.answer == "context=retrieved context"
-    assert result.tools_used == ["knowledge_search"]
+    assert result.tools_used == ["search_knowledge_base"]
     assert result.ranked_candidates[0][0].chunk_id == "chunk"

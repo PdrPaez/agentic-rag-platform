@@ -24,6 +24,8 @@ class Settings(BaseSettings):
     final_context_count: int = 5
     lexical_weight: float = 0.4
     vector_weight: float = 0.6
+    chunk_size: int = 800
+    chunk_overlap: int = 150
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 

@@ -24,6 +24,8 @@ def calculate(expression: str) -> str:
         raise CalculatorError("Expression must contain between 1 and 200 characters")
     try:
         tree = ast.parse(expression, mode="eval")
+        if sum(1 for _ in ast.walk(tree)) > 50:
+            raise CalculatorError("Calculator expression is too complex")
         result = _evaluate(tree.body)
     except (ArithmeticError, SyntaxError, ValueError, TypeError) as exc:
         raise CalculatorError("Invalid calculator expression") from exc
@@ -33,7 +35,7 @@ def calculate(expression: str) -> str:
 
 
 def _evaluate(node: ast.expr) -> float:
-    if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)):
+    if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)) and not isinstance(node.value, bool):
         return float(node.value)
     if isinstance(node, ast.UnaryOp) and type(node.op) in UNARY_OPERATORS:
         return UNARY_OPERATORS[type(node.op)](_evaluate(node.operand))
