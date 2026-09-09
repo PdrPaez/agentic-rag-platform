@@ -10,10 +10,16 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
+
+from app.core.config import Settings
+from app.db.database import Base
 from app.db.models import ChunkRecord
-from app.rag.hybrid import HybridCandidate, combine_results
-from app.rag.lexical import LexicalIndex, tokenize
+from app.rag.hybrid import HybridCandidate
+from app.rag.lexical import tokenize
 from app.rag.reranking import rerank_candidates
+from app.rag.retriever import HybridRetriever
 from app.rag.vector_store import VectorMatch
 
 ROOT = Path(__file__).parent
@@ -66,6 +72,22 @@ class DeterministicReranker:
         return [sum(token in query_tokens for token in _canonical_tokens(text)) for text in texts]
 
 
+class DeterministicVectorStore:
+    """In-memory vector-store adapter used by CI to exercise HybridRetriever offline."""
+
+    def __init__(self, chunks: list[ChunkRecord], embedder: DeterministicEmbedder) -> None:
+        self._matches = [
+            (chunk, vector) for chunk, vector in zip(chunks, embedder.encode([chunk.text for chunk in chunks]), strict=True)
+        ]
+
+    def search(self, vector: list[float], limit: int) -> list[VectorMatch]:
+        ranked = sorted(self._matches, key=lambda pair: _cosine(vector, pair[1]), reverse=True)
+        return [
+            VectorMatch(chunk.id, _cosine(vector, candidate_vector), {"document_id": chunk.document_id, "text": chunk.text, "document_name": chunk.document_id})
+            for chunk, candidate_vector in ranked[:limit]
+        ]
+
+
 def _cosine(left: Sequence[float], right: Sequence[float]) -> float:
     return sum(a * b for a, b in zip(left, right, strict=True))
 
@@ -82,13 +104,6 @@ def load_chunks() -> list[ChunkRecord]:
     for path in sorted((ROOT / "documents").glob("*.md")):
         chunks.append(ChunkRecord(id=path.stem, document_id=path.name, chunk_index=0, text=path.read_text(encoding="utf-8")))
     return chunks
-
-
-def _vector_matches(query: str, chunks: list[ChunkRecord], embedder: DeterministicEmbedder) -> list[VectorMatch]:
-    query_vector = embedder.encode([query])[0]
-    vectors = embedder.encode([chunk.text for chunk in chunks])
-    ranked = sorted(zip(chunks, vectors, strict=True), key=lambda pair: _cosine(query_vector, pair[1]), reverse=True)
-    return [VectorMatch(chunk.id, _cosine(query_vector, vector), {"document_id": chunk.document_id, "text": chunk.text, "document_name": chunk.document_id}) for chunk, vector in ranked]
 
 
 def _document_ids(items: Sequence[HybridCandidate | tuple[HybridCandidate, float] | VectorMatch]) -> list[str]:
@@ -112,26 +127,31 @@ def _rank_of(expected: str, documents: Sequence[str]) -> int | None:
 def evaluate() -> tuple[list[StageResult], float, float]:
     cases = load_cases()
     chunks = load_chunks()
-    index = LexicalIndex()
-    index.rebuild(chunks)
     embedder = DeterministicEmbedder()
+    vector_store = DeterministicVectorStore(chunks, embedder)
+    retriever = HybridRetriever(embedder, vector_store, Settings(retrieval_candidate_count=5))
     reranker = DeterministicReranker()
     stage_documents: dict[str, list[list[str]]] = {"Vector only": [], "Hybrid": [], "Hybrid + reranking": []}
     fact_coverage: list[float] = []
     latencies: list[float] = []
 
-    for case in cases:
-        started = time.perf_counter()
-        lexical = index.search(case.question, limit=5)
-        vectors = _vector_matches(case.question, chunks, embedder)[:5]
-        hybrid = combine_results(lexical, vectors, limit=5)
-        reranked = rerank_candidates(case.question, hybrid, reranker, limit=5)
-        stage_documents["Vector only"].append(_document_ids(vectors))
-        stage_documents["Hybrid"].append(_document_ids(hybrid))
-        stage_documents["Hybrid + reranking"].append(_document_ids(reranked))
-        retrieved_text = " ".join(item.text for item in hybrid)
-        fact_coverage.append(sum(_canonical_tokens(fact) and " ".join(_canonical_tokens(fact)) in " ".join(_canonical_tokens(retrieved_text)) for fact in case.expected_facts) / len(case.expected_facts))
-        latencies.append((time.perf_counter() - started) * 1000)
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    with Session(engine) as session:
+        session.add_all(chunks)
+        session.commit()
+        for case in cases:
+            started = time.perf_counter()
+            query_vector = embedder.encode([case.question])[0]
+            vectors = vector_store.search(query_vector, 5)
+            hybrid = retriever.search(case.question, session)
+            reranked = rerank_candidates(case.question, hybrid, reranker, limit=5)
+            stage_documents["Vector only"].append(_document_ids(vectors))
+            stage_documents["Hybrid"].append(_document_ids(hybrid))
+            stage_documents["Hybrid + reranking"].append(_document_ids(reranked))
+            retrieved_text = " ".join(item.text for item in hybrid)
+            fact_coverage.append(sum(_canonical_tokens(fact) and " ".join(_canonical_tokens(fact)) in " ".join(_canonical_tokens(retrieved_text)) for fact in case.expected_facts) / len(case.expected_facts))
+            latencies.append((time.perf_counter() - started) * 1000)
 
     results: list[StageResult] = []
     for name, rankings in stage_documents.items():

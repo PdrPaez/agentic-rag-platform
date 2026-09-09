@@ -5,6 +5,7 @@ from app.api.routes.chat import router as chat_router
 from app.api.routes.documents import router as documents_router
 from app.api.routes.health import router as health_router
 from app.api.routes.metrics import router as metrics_router
+from app.api.routes.traces import router as traces_router
 from app.core.config import get_settings
 from app.db import runtime  # noqa: F401
 from app.observability.middleware import RequestObservabilityMiddleware
@@ -23,3 +24,6 @@ app.include_router(health_router, prefix="/api")
 app.include_router(documents_router, prefix="/api")
 app.include_router(chat_router, prefix="/api")
 app.include_router(metrics_router, prefix="/api")
+app.include_router(health_router)
+app.include_router(metrics_router)
+app.include_router(traces_router, prefix="/api")
