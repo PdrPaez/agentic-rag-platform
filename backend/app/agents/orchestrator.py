@@ -21,6 +21,24 @@ class OrchestrationResult:
     steps: int
     context_truncated: bool = False
     context_chunks: int = 0
+    conflict_detected: bool = False
+
+
+def detect_conflicting_evidence(question: str, candidates: list[HybridCandidate]) -> bool:
+    """Detect divergent numeric evidence shared by multiple relevant sources."""
+    question_terms = set(re.findall(r"[a-zA-Z]{4,}", question.lower()))
+    evidence: list[tuple[str, set[str], set[str]]] = []
+    for candidate in candidates:
+        terms = set(re.findall(r"[a-zA-Z]{4,}", candidate.text.lower()))
+        values = set(re.findall(r"\b\d+(?:\.\d+)?\b", candidate.text))
+        shared_terms = question_terms & terms
+        if shared_terms and values:
+            evidence.append((candidate.document_id, shared_terms, values))
+    for index, (document_id, terms, values) in enumerate(evidence):
+        for other_document_id, other_terms, other_values in evidence[index + 1 :]:
+            if document_id != other_document_id and terms & other_terms and values != other_values:
+                return True
+    return False
 
 
 class BoundedOrchestrator:
@@ -65,6 +83,7 @@ class BoundedOrchestrator:
             context.append(candidate.text)
             total_characters += len(candidate.text)
         answer = self.provider.generate(question, context)
+        conflict_detected = detect_conflicting_evidence(question, [candidate for candidate, _ in ranked_candidates])
         return OrchestrationResult(
             answer=answer,
             candidates=candidates,
@@ -73,5 +92,6 @@ class BoundedOrchestrator:
             steps=min(steps, MAX_STEPS),
             context_truncated=context_truncated,
             context_chunks=len(context),
+            conflict_detected=conflict_detected,
         )
 
