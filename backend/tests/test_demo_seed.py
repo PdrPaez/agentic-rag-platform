@@ -8,6 +8,18 @@ from app.db.database import Base, create_session_factory
 from app.main import app
 
 
+def test_demo_seed_returns_controlled_error_when_indexing_fails(monkeypatch) -> None:
+    def fail_seed(session):
+        raise RuntimeError("vector store unavailable")
+
+    monkeypatch.setattr("app.api.routes.demo.seed_demo_documents", fail_seed)
+
+    response = TestClient(app).post("/api/demo/seed")
+
+    assert response.status_code == 503
+    assert response.json() == {"detail": "The demo corpus is temporarily unavailable"}
+
+
 def test_demo_seed_is_idempotent(tmp_path: Path) -> None:
     session_factory = create_session_factory(f"sqlite:///{tmp_path / 'demo.db'}")
     Base.metadata.create_all(session_factory.kw["bind"])
