@@ -32,3 +32,13 @@ def test_openai_provider_rejects_invalid_content(monkeypatch: pytest.MonkeyPatch
 
     with pytest.raises(ValueError, match="invalid response"):
         OpenAICompatibleProvider("key", "model", "https://example.com/v1").generate("Q", [])
+
+
+def test_openai_provider_reports_transport_failure(monkeypatch: pytest.MonkeyPatch) -> None:
+    def fail(*args: object, **kwargs: object) -> None:
+        raise __import__("httpx").ConnectError("offline")
+
+    monkeypatch.setattr("app.llm.providers.httpx.post", fail)
+
+    with pytest.raises(RuntimeError, match="provider is unavailable"):
+        OpenAICompatibleProvider("key", "model", "https://example.com/v1").generate("Q", [])
