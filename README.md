@@ -12,6 +12,7 @@ The default setup runs without a paid LLM account through a deterministic mock p
 - **Hybrid retrieval:** BM25 lexical retrieval, sentence-transformer embeddings, local Qdrant search, normalized hybrid scoring, and CrossEncoder reranking.
 - **Bounded agent:** maximum three iterations and exactly two tools: search_knowledge_base and calculator.
 - **Inspectable answers:** structured citations, provider name, retrieved and reranked counts, scores, token estimates, timings, and tools used.
+- **Grounding safeguards:** insufficient-context responses, partial answers for truncated or conflicting evidence, and citations for source review.
 - **Operations:** request IDs, in-process traces, Prometheus metrics, health endpoints, and deterministic evaluation.
 - **Quality gates:** pytest, Ruff, TypeScript validation, frontend production build, and CI checks.
 
