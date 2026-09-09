@@ -58,6 +58,7 @@ def test_orchestrator_enforces_context_budget() -> None:
     result = orchestrator.run("Summarize")
 
     assert len(result.answer) == MAX_CONTEXT_CHARACTERS + len("context=")
+    assert result.context_truncated is True
 
 
 def test_orchestrator_accepts_configured_context_budget() -> None:
@@ -67,3 +68,4 @@ def test_orchestrator_accepts_configured_context_budget() -> None:
     result = orchestrator.run("Summarize")
 
     assert result.answer == "context=" + ("x" * 10)
+    assert result.context_truncated is False
