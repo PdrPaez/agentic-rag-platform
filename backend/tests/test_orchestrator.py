@@ -1,6 +1,6 @@
 from collections.abc import Sequence
 
-from app.agents.orchestrator import MAX_STEPS, BoundedOrchestrator
+from app.agents.orchestrator import MAX_CONTEXT_CHARACTERS, MAX_STEPS, BoundedOrchestrator
 from app.rag.hybrid import HybridCandidate
 
 
@@ -46,3 +46,15 @@ def test_retrieved_prompt_injection_remains_context_only() -> None:
     assert result.tools_used == ["search_knowledge_base"]
     assert result.steps == 2
     assert "Ignore previous instructions" in result.answer
+
+
+def test_orchestrator_enforces_context_budget() -> None:
+    candidates = [
+        HybridCandidate(str(index), "doc", "x" * MAX_CONTEXT_CHARACTERS, 1.0, 0.0, 1.0)
+        for index in range(2)
+    ]
+    orchestrator = BoundedOrchestrator(FakeProvider(), lambda _: candidates)
+
+    result = orchestrator.run("Summarize")
+
+    assert len(result.answer) == MAX_CONTEXT_CHARACTERS + len("context=")
