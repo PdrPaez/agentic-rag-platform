@@ -34,7 +34,7 @@ TOKEN_ALIASES = {
 @dataclass(frozen=True)
 class EvaluationCase:
     question: str
-    expected_document: str
+    expected_document: str | None
     expected_facts: tuple[str, ...]
 
 
@@ -102,8 +102,8 @@ def _cosine(left: Sequence[float], right: Sequence[float]) -> float:
 
 def load_cases() -> list[EvaluationCase]:
     data = json.loads((ROOT / "dataset.json").read_text(encoding="utf-8"))
-    if len(data) != 10:
-        raise ValueError("The bundled evaluation dataset must contain exactly 10 cases")
+    if len(data) != 25:
+        raise ValueError("The bundled evaluation dataset must contain exactly 25 cases")
     return [EvaluationCase(item["question"], item["expected_document"], tuple(item["expected_facts"])) for item in data]
 
 
@@ -126,6 +126,8 @@ def _document_ids(items: Sequence[HybridCandidate | tuple[HybridCandidate, float
 
 
 def _rank_of(expected: str, documents: Sequence[str]) -> int | None:
+    if not expected:
+        return None
     try:
         return documents.index(expected) + 1
     except ValueError:
@@ -178,10 +180,10 @@ def evaluate() -> tuple[list[StageResult], float, float]:
             for name in stage_documents:
                 texts = [chunk.text for chunk in chunks if chunk.document_id in stage_documents[name][-1]]
                 corpus = " ".join(_canonical_tokens(" ".join(texts)))
-                coverage = sum(" ".join(_canonical_tokens(fact)) in corpus for fact in case.expected_facts) / len(case.expected_facts)
+                coverage = (sum(" ".join(_canonical_tokens(fact)) in corpus for fact in case.expected_facts) / len(case.expected_facts) if case.expected_facts else 0.0)
                 stage_facts[name].append(coverage)
             retrieved_text = " ".join(item.text for item in hybrid)
-            fact_coverage.append(sum(_canonical_tokens(fact) and " ".join(_canonical_tokens(fact)) in " ".join(_canonical_tokens(retrieved_text)) for fact in case.expected_facts) / len(case.expected_facts))
+            fact_coverage.append(sum(_canonical_tokens(fact) and " ".join(_canonical_tokens(fact)) in " ".join(_canonical_tokens(retrieved_text)) for fact in case.expected_facts) / len(case.expected_facts) if case.expected_facts else 0.0)
             latencies.append((time.perf_counter() - started) * 1000)
 
     results: list[StageResult] = []
