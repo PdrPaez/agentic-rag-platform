@@ -25,6 +25,13 @@ class EmptyRetriever:
         return []
 
 
+class MalformedProvider:
+    name = "openai-compatible"
+
+    def generate(self, question: str, context: list[str], tool_result: str | None = None) -> str:
+        raise ValueError("malformed provider response")
+
+
 class OversizedRetriever:
     def search(self, question: str, session: object) -> list[HybridCandidate]:
         return [HybridCandidate("large-chunk", "doc-1", "x" * 6001, 1.0, 0.5, 0.8, "Guide.md")]
@@ -135,6 +142,19 @@ def test_chat_returns_service_unavailable_when_provider_is_down() -> None:
         assert response.json()["detail"] == "The LLM provider is unavailable"
         request_id = response.headers["x-request-id"]
         assert any(stage["stage"] == "generation_failed" for stage in (get_trace(request_id) or []))
+    finally:
+        chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider = original
+
+
+def test_chat_returns_bad_gateway_when_provider_response_is_invalid() -> None:
+    original = (chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider)
+    chat_route.get_retriever = lambda: FakeRetriever()
+    chat_route.get_provider = lambda: MalformedProvider()
+    try:
+        response = TestClient(app).post("/api/chat", json={"question": "What is indexed?"})
+
+        assert response.status_code == 502
+        assert response.json()["detail"] == "The LLM provider returned an invalid response"
     finally:
         chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider = original
         app.dependency_overrides.clear()

@@ -104,6 +104,10 @@ class TimedProvider:
             PROVIDER_FAILURE_COUNT.labels(self.name).inc()
             record_trace(self.request_id, "generation_failed", 0.0, provider=self.name)
             raise
+        except ValueError as exc:
+            PROVIDER_FAILURE_COUNT.labels(self.name).inc()
+            record_trace(self.request_id, "generation_failed", 0.0, provider=self.name)
+            raise RuntimeError("The LLM provider returned an invalid response") from exc
         self.timings["generation_latency_ms"] = (perf_counter() - started) * 1000
         record_trace(self.request_id, "generation_completed", self.timings["generation_latency_ms"], provider=self.name)
         return answer
@@ -151,6 +155,8 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
             max_context_characters=get_settings().max_context_characters,
         ).run(payload.question)
     except RuntimeError as exc:
+        if str(exc) == "The LLM provider returned an invalid response":
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
         if str(exc) != "The LLM provider is unavailable":
             raise
         raise HTTPException(status_code=503, detail=str(exc)) from exc
