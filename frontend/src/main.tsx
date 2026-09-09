@@ -1,13 +1,7 @@
 import { FormEvent, StrictMode, useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import { askQuestion, ChatResponse, deleteDocument, Document, listDocuments, uploadDocument } from "./api";
+import { askQuestion, ChatResponse, deleteDocument, Document, listDocuments, seedDemoDocuments, uploadDocument } from "./api";
 import "./styles.css";
-
-const demoDocuments = [
-  ["architecture.md", "# Atlas architecture\n\nAtlas uses Qdrant for document chunks and PostgreSQL for metadata. Chunks are 800 characters with 150 characters of overlap."],
-  ["incident-response.md", "# Incident response\n\nFor Sev-1 incidents, the incident commander is paged within 15 minutes. Customer updates go to the public status page."],
-  ["engineering-handbook.md", "# Engineering handbook\n\nBackend services use Python 3.11. Ruff enforces 100 character lines and pull requests need two approvals."],
-] as const;
 
 type ConversationEntry = { question: string; response: ChatResponse };
 
@@ -34,7 +28,7 @@ function App() {
   };
   const loadDemoDocuments = async () => {
     setBusy(true); setMessage("Loading demo corpus…");
-    try { for (const [name, text] of demoDocuments) await uploadDocument(new File([text], name, { type: "text/markdown" })); await refreshDocuments(); setMessage("Demo corpus loaded."); }
+    try { await seedDemoDocuments(); await refreshDocuments(); setMessage("Demo corpus loaded."); }
     catch (error) { setMessage(error instanceof Error ? error.message : "Demo loading failed"); }
     finally { setBusy(false); }
   };
@@ -56,7 +50,7 @@ function App() {
 
   const diagnostics = activeResponse?.diagnostics;
   return (
-    <main className="app-shell">
+    <main className="app-shell font-sans">
       <header className="topbar"><div className="brand-mark">AR</div><div><p className="eyebrow">Agentic RAG / local workspace</p><h1>Inspectable retrieval studio</h1></div><div className="system-state"><span className="pulse" /> API connected</div></header>
       <div className="workspace-grid">
         <aside className="panel library-panel"><div className="panel-heading"><div><p className="section-kicker">01 / corpus</p><h2>Documents</h2></div><span className="count-badge">{documents.length}</span></div><p className="panel-copy">Manage the indexed context available to the retrieval pipeline.</p>

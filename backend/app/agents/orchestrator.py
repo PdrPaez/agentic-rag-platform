@@ -3,6 +3,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 
 from app.agents.tools.calculator import calculate
+from app.agents.tools.search import search_knowledge_base
 from app.llm.providers import LLMProvider
 from app.rag.hybrid import HybridCandidate
 
@@ -44,7 +45,7 @@ class BoundedOrchestrator:
                 steps=min(steps, MAX_STEPS),
             )
 
-        candidates = self.retrieve(question)
+        candidates = search_knowledge_base(question, self.retrieve)
         ranked_candidates = self.rank(question, candidates) if self.rank else [
             (candidate, candidate.hybrid_score) for candidate in candidates
         ]
@@ -54,7 +55,7 @@ class BoundedOrchestrator:
             answer=answer,
             candidates=candidates,
             ranked_candidates=ranked_candidates,
-            tools_used=["knowledge_search"] if candidates else [],
+            tools_used=["search_knowledge_base"] if candidates else [],
             steps=min(steps, MAX_STEPS),
         )
 
