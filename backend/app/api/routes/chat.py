@@ -1,13 +1,15 @@
 from time import perf_counter
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.agents.orchestrator import BoundedOrchestrator
 from app.api.routes.documents import get_session
 from app.core.config import get_settings
+from app.observability.metrics import GENERATION_LATENCY, RETRIEVAL_LATENCY
+from app.observability.traces import record_trace
 from app.rag.provider_runtime import get_provider
 from app.rag.reranker_runtime import get_reranker
 from app.rag.reranking import rerank_candidates
@@ -62,34 +64,46 @@ def get_retriever() -> HybridRetriever:
 
 
 class TimedProvider:
-    def __init__(self, provider: object, timings: dict[str, float]) -> None:
+    def __init__(self, provider: object, timings: dict[str, float], request_id: str) -> None:
         self.provider = provider
         self.timings = timings
+        self.request_id = request_id
         self.name = provider.name
 
     def generate(self, question: str, context: list[str], tool_result: str | None = None) -> str:
+        record_trace(self.request_id, "generation_started", 0.0, provider=self.name)
         started = perf_counter()
         answer = self.provider.generate(question, context, tool_result)
         self.timings["generation_latency_ms"] = (perf_counter() - started) * 1000
+        record_trace(self.request_id, "generation_completed", self.timings["generation_latency_ms"], provider=self.name)
         return answer
 
 
 @router.post("/chat", response_model=ChatResponse)
-def chat(request: ChatRequest, session: Session = Depends(get_session)) -> ChatResponse:
-    request_id = str(uuid4())
+def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_session)) -> ChatResponse:
+    request_id = getattr(request.state, "request_id", request.headers.get("x-request-id", str(uuid4())))
     started = perf_counter()
+    record_trace(request_id, "request_received", 0.0, operation="chat")
     timings: dict[str, float] = {"retrieval_latency_ms": 0.0, "generation_latency_ms": 0.0}
 
     def retrieve(question: str):
         retrieval_started = perf_counter()
         candidates = get_retriever().search(question, session)
         timings["retrieval_latency_ms"] = (perf_counter() - retrieval_started) * 1000
+        RETRIEVAL_LATENCY.observe(timings["retrieval_latency_ms"] / 1000)
+        record_trace(request_id, "retrieval_completed", timings["retrieval_latency_ms"], candidates=len(candidates))
         return candidates
 
     def rank(question: str, candidates):
-        return rerank_candidates(question, candidates, get_reranker(), get_settings().final_context_count)
+        rank_started = perf_counter()
+        ranked = rerank_candidates(question, candidates, get_reranker(), get_settings().final_context_count)
+        record_trace(request_id, "reranking_completed", (perf_counter() - rank_started) * 1000, candidates=len(ranked))
+        return ranked
 
-    result = BoundedOrchestrator(TimedProvider(get_provider(), timings), retrieve, rank).run(request.question)
+    result = BoundedOrchestrator(TimedProvider(get_provider(), timings, request_id), retrieve, rank).run(payload.question)
+    GENERATION_LATENCY.observe(timings["generation_latency_ms"] / 1000)
+    if result.tools_used:
+        record_trace(request_id, "tool_called", 0.0, tools=result.tools_used)
     reranked = result.ranked_candidates
     answer = result.answer
     generation_latency_ms = timings["generation_latency_ms"]
@@ -101,7 +115,7 @@ def chat(request: ChatRequest, session: Session = Depends(get_session)) -> ChatR
         retrieval_latency_ms=timings["retrieval_latency_ms"],
         generation_latency_ms=generation_latency_ms,
         provider=get_provider().name,
-        estimated_input_tokens=len(request.question.split()) + sum(len(candidate.text.split()) for candidate, _ in reranked),
+        estimated_input_tokens=len(payload.question.split()) + sum(len(candidate.text.split()) for candidate, _ in reranked),
         estimated_output_tokens=len(answer.split()),
         retrieval=[
             RetrievalDiagnostic(
