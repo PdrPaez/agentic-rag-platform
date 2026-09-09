@@ -36,8 +36,8 @@ def test_demo_seed_is_idempotent(tmp_path: Path) -> None:
     app.dependency_overrides[get_session] = override_session
     try:
         client = TestClient(app)
-        first = client.post("/api/documents/demo/seed")
-        second = client.post("/api/documents/demo/seed")
+        first = client.post("/api/demo/seed")
+        second = client.post("/api/demo/seed")
 
         assert first.status_code == 200
         assert len(first.json()) == 5

@@ -101,7 +101,7 @@ def delete_document(document_id: str, session: Session = Depends(get_session)) -
 
 
 @router.post("/demo/seed", response_model=list[DocumentResponse])
-async def seed_demo_documents(session: Session = Depends(get_session)) -> list[DocumentResponse]:
+def seed_demo_documents(session: Session = Depends(get_session)) -> list[DocumentResponse]:
     from pathlib import Path
 
     demo_directory = Path(__file__).resolve().parents[2] / "evaluation" / "documents"
