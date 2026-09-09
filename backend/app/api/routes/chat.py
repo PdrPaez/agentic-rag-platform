@@ -71,6 +71,8 @@ class TimedProvider:
         self.name = provider.name
 
     def generate(self, question: str, context: list[str], tool_result: str | None = None) -> str:
+        if tool_result is not None:
+            record_trace(self.request_id, "tool_called", 0.0, tools=["calculator"])
         record_trace(self.request_id, "generation_started", 0.0, provider=self.name)
         started = perf_counter()
         answer = self.provider.generate(question, context, tool_result)
@@ -87,11 +89,14 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
     timings: dict[str, float] = {"retrieval_latency_ms": 0.0, "generation_latency_ms": 0.0}
 
     def retrieve(question: str):
+        record_trace(request_id, "retrieval_started", 0.0, query_length=len(question))
         retrieval_started = perf_counter()
         candidates = get_retriever().search(question, session)
         timings["retrieval_latency_ms"] = (perf_counter() - retrieval_started) * 1000
         RETRIEVAL_LATENCY.observe(timings["retrieval_latency_ms"] / 1000)
         record_trace(request_id, "retrieval_completed", timings["retrieval_latency_ms"], candidates=len(candidates))
+        if candidates:
+            record_trace(request_id, "tool_called", 0.0, tools=["search_knowledge_base"])
         return candidates
 
     def rank(question: str, candidates):
@@ -102,8 +107,6 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
 
     result = BoundedOrchestrator(TimedProvider(get_provider(), timings, request_id), retrieve, rank).run(payload.question)
     GENERATION_LATENCY.observe(timings["generation_latency_ms"] / 1000)
-    if result.tools_used:
-        record_trace(request_id, "tool_called", 0.0, tools=result.tools_used)
     reranked = result.ranked_candidates
     answer = result.answer
     generation_latency_ms = timings["generation_latency_ms"]
