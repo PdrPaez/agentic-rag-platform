@@ -228,7 +228,7 @@ This step is optional; the built-in defaults support offline local execution.
 | VECTOR_STORAGE_PATH | ./qdrant_storage | Local Qdrant storage |
 | EMBEDDING_MODEL_NAME | sentence-transformers/all-MiniLM-L6-v2 | Embedding model |
 | RERANKER_MODEL_NAME | cross-encoder/ms-marco-MiniLM-L-6-v2 | Reranking model |
-| LLM_PROVIDER | mock | mock or openai_compatible |
+| LLM_PROVIDER | mock | `mock` or `openai-compatible` |
 | LLM_MODEL_NAME | gpt-4o-mini | Provider model |
 | LLM_API_KEY | unset | Provider key |
 | LLM_BASE_URL | https://api.openai.com/v1 | Provider base URL |
