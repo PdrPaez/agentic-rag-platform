@@ -6,6 +6,8 @@ The portfolio-quality upgrade roadmap is preserved in [master-prompt.md](master-
 
 Both documents are versioned in the repository so work can resume consistently after an interrupted agent session. Repository rules and the current user request take precedence when they intentionally change either document.
 
+The latest user-provided master prompt is authoritative for the portfolio upgrade. When a newer attached version is supplied, update `master-prompt.md` in the same ARAG card that records the roadmap change, then continue from the first incomplete implementation or hardening card it identifies.
+
 ## Operating rule
 
 For each meaningful task, resume from the first incomplete `ARAG-XXX` card and follow:
