@@ -17,13 +17,14 @@ def test_combine_results_merges_by_chunk_and_retains_diagnostics() -> None:
     lexical = [LexicalMatch("chunk-a", 2.0, "alpha", "doc-a")]
     vectors = [
         VectorMatch("chunk-a", 0.6, {"document_id": "doc-a", "text": "alpha"}),
-        VectorMatch("chunk-b", 0.9, {"document_id": "doc-b", "text": "beta"}),
+        VectorMatch("chunk-b", 0.9, {"document_id": "doc-b", "text": "beta", "chunk_index": 3}),
     ]
 
     results = combine_results(lexical, vectors, lexical_weight=0.3, vector_weight=0.7)
 
     assert results[0].chunk_id == "chunk-b"
     assert results[0].vector_score == 1.0
+    assert results[0].chunk_index == 3
     assert results[1].bm25_score == 1.0
 
 
