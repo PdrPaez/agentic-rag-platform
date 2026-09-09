@@ -99,7 +99,12 @@ class TimedProvider:
         return answer
 
 
-@router.post("/chat", response_model=ChatResponse)
+@router.post(
+    "/chat",
+    response_model=ChatResponse,
+    summary="Ask the bounded RAG agent",
+    description="Retrieve grounded context, optionally use the calculator, and return citations plus execution diagnostics.",
+)
 def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_session)) -> ChatResponse:
     request_id = getattr(request.state, "request_id", request.headers.get("x-request-id", str(uuid4())))
     started = perf_counter()

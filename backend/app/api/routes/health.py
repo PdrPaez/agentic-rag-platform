@@ -9,7 +9,7 @@ class HealthResponse(BaseModel):
     service: str
 
 
-@router.get("/health", response_model=HealthResponse)
+@router.get("/health", response_model=HealthResponse, summary="Check service health")
 def health() -> HealthResponse:
     return HealthResponse(status="ok", service="agentic-rag-platform-api")
 
