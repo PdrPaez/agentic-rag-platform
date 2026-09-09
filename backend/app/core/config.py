@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     llm_model_name: str = "gpt-4o-mini"
     llm_api_key: str | None = None
     llm_base_url: str = "https://api.openai.com/v1"
+    llm_timeout_seconds: float = Field(default=30.0, gt=0)
     retrieval_candidate_count: int = Field(default=12, gt=0)
     final_context_count: int = Field(default=5, gt=0)
     lexical_weight: float = 0.4

@@ -26,12 +26,13 @@ class MockLLMProvider:
 class OpenAICompatibleProvider:
     name = "openai-compatible"
 
-    def __init__(self, api_key: str, model_name: str, base_url: str) -> None:
+    def __init__(self, api_key: str, model_name: str, base_url: str, timeout_seconds: float = 30.0) -> None:
         if not api_key:
             raise ValueError("LLM_API_KEY is required for the OpenAI-compatible provider")
         self.api_key = api_key
         self.model_name = model_name
         self.base_url = base_url.rstrip("/")
+        self.timeout_seconds = timeout_seconds
 
     def generate(self, query: str, context: Sequence[str], tool_result: str | None = None) -> str:
         prompt = "\n\n".join(context)
@@ -49,7 +50,7 @@ class OpenAICompatibleProvider:
                     {"role": "user", "content": f"{prompt}\n\nQuestion (user input): {query}"},
                     ],
                 },
-                timeout=30.0,
+                timeout=self.timeout_seconds,
             )
             response.raise_for_status()
         except httpx.HTTPError as exc:
@@ -66,10 +67,16 @@ class OpenAICompatibleProvider:
             raise ValueError("The LLM provider returned an invalid response") from exc
 
 
-def create_provider(provider_name: str, model_name: str, api_key: str | None, base_url: str) -> LLMProvider:
+def create_provider(
+    provider_name: str,
+    model_name: str,
+    api_key: str | None,
+    base_url: str,
+    timeout_seconds: float = 30.0,
+) -> LLMProvider:
     if provider_name == "mock":
         return MockLLMProvider()
     if provider_name == "openai-compatible":
-        return OpenAICompatibleProvider(api_key or "", model_name, base_url)
+        return OpenAICompatibleProvider(api_key or "", model_name, base_url, timeout_seconds)
     raise ValueError(f"Unsupported LLM provider: {provider_name}")
 
