@@ -208,6 +208,14 @@ Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8000/api/chat -ContentType 
 
 The backend reads environment variables from backend/.env.
 
+To customize them, copy the repository example before starting the backend:
+
+~~~powershell
+Copy-Item .env.example backend/.env
+~~~
+
+This step is optional; the built-in defaults support offline local execution.
+
 | Variable | Default | Description |
 | --- | --- | --- |
 | BACKEND_HOST | 127.0.0.1 | Bind address |
