@@ -29,6 +29,18 @@ The desktop view shows corpus management, retrieval console, and diagnostics tog
 
 The responsive view shows the same workflow stacked for a narrower viewport.
 
+### API surface
+
+![Swagger API surface](docs/assets/api-docs.png)
+
+The Swagger capture shows the implemented health, document, demo seed, chat, and trace endpoints exposed by the backend.
+
+### Prometheus metrics
+
+![Prometheus metrics output](docs/assets/metrics.png)
+
+The metrics capture shows live request counters and latency histograms produced by the running service.
+
 The screenshots are versioned under docs/assets and were generated from the running local application. During live validation I also confirmed:
 
 - Demo seeding inserted five documents and remained idempotent on repeat runs.
