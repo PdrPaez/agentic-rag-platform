@@ -1,6 +1,6 @@
 # Evaluation workflow
 
-The bundled benchmark is deterministic with respect to the dataset and retrieval implementation. It uses an offline hashed embedder and deterministic reranker, so CI does not need model downloads or provider credentials.
+The bundled benchmark is deterministic with respect to the dataset and retrieval implementation. It uses an offline hashed embedder and deterministic reranker, so CI does not need model downloads or provider credentials. The 30-case dataset contains 20% negative cases, and backend tests separately validate answer behavior: abstention correctness, citation presence, and expected-fact coverage.
 
 Run it from the backend directory:
 
