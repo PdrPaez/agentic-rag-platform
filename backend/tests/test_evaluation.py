@@ -1,6 +1,9 @@
 import pytest
 
-from app.evaluation.answer_behavior import evaluate_answer_behavior
+from app.evaluation.answer_behavior import (
+    evaluate_answer_behavior,
+    evaluate_bundled_answer_behavior,
+)
 from app.evaluation.run import EvaluationCase, evaluate, load_cases, load_chunks
 from app.rag.hybrid import HybridCandidate
 
@@ -42,3 +45,13 @@ def test_answer_behavior_checks_abstention_citations_and_fact_coverage() -> None
 def test_answer_behavior_rejects_mismatched_inputs() -> None:
     with pytest.raises(ValueError, match="same length"):
         evaluate_answer_behavior([EvaluationCase("known", "guide.md", ("fact",))], [])
+
+
+def test_bundled_answer_behavior_summary_is_reportable() -> None:
+    summary = evaluate_bundled_answer_behavior()
+
+    assert summary.cases == 30
+    assert summary.answerable_cases == 24
+    assert 0 <= summary.abstention_accuracy <= 1
+    assert 0 <= summary.citation_presence_accuracy <= 1
+    assert summary.expected_fact_coverage == 1
