@@ -154,10 +154,17 @@ def test_chat_returns_bad_gateway_when_provider_response_is_invalid() -> None:
     chat_route.get_retriever = lambda: FakeRetriever()
     chat_route.get_provider = lambda: MalformedProvider()
     try:
-        response = TestClient(app).post("/api/chat", json={"question": "What is indexed?"})
+        client = TestClient(app)
+        response = client.post(
+            "/api/chat",
+            json={"question": "What is indexed?"},
+            headers={"x-request-id": "malformed-provider-test"},
+        )
 
         assert response.status_code == 502
         assert response.json()["detail"] == "The LLM provider returned an invalid response"
+        trace = client.get("/api/traces/malformed-provider-test").json()
+        assert trace["entries"][-1]["stage"] == "generation_failed"
     finally:
         chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider = original
         app.dependency_overrides.clear()
