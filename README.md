@@ -253,7 +253,7 @@ I added request-level observability so each chat request has a request ID and ex
 
 I designed the frontend as an operational workspace rather than a generic chat screen. Corpus management, retrieval, and diagnostics are visible as separate working areas. During the visual pass I fixed citation overflow, added responsive layouts, improved focus states, added loading feedback, and made error messages more visible.
 
-I validated the complete flow against a running backend and frontend. The validation covered model loading, demo seeding, idempotence, retrieval with citations, trace retrieval, metrics, calculator execution, restart persistence, deletion, and reseeding. The automated checks currently include 49 passing backend tests, a clean Ruff run, deterministic evaluation, and successful frontend lint and production build.
+I validated the complete flow against a running backend and frontend. The validation covered model loading, demo seeding, idempotence, retrieval with citations, trace retrieval, metrics, calculator execution, restart persistence, deletion, and reseeding. The automated checks currently include 52 passing backend tests, a clean Ruff run, 91% backend coverage, deterministic evaluation, and successful frontend lint and production build.
 
 The implementation was promoted through:
 
