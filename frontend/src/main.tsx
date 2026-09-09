@@ -9,10 +9,12 @@ const demoDocuments = [
   ["engineering-handbook.md", "# Engineering handbook\n\nBackend services use Python 3.11. Ruff enforces 100 character lines and pull requests need two approvals."],
 ] as const;
 
+type ConversationEntry = { question: string; response: ChatResponse };
+
 function App() {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [question, setQuestion] = useState("");
-  const [conversation, setConversation] = useState<ChatResponse[]>([]);
+  const [conversation, setConversation] = useState<ConversationEntry[]>([]);
   const [activeResponse, setActiveResponse] = useState<ChatResponse | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("Loading workspace…");
@@ -47,7 +49,7 @@ function App() {
     event.preventDefault();
     if (!question.trim() || busy) return;
     setBusy(true); setMessage("Running bounded retrieval…");
-    try { const response = await askQuestion(question.trim()); setConversation((items) => [...items, response]); setActiveResponse(response); setQuestion(""); setMessage(""); }
+    try { const submittedQuestion = question.trim(); const response = await askQuestion(submittedQuestion); setConversation((items) => [...items, { question: submittedQuestion, response }]); setActiveResponse(response); setQuestion(""); setMessage(""); }
     catch (error) { setMessage(error instanceof Error ? error.message : "Question failed"); }
     finally { setBusy(false); }
   };
@@ -63,7 +65,7 @@ function App() {
         </aside>
         <section className="main-panel"><div className="conversation-header"><div><p className="section-kicker">02 / ask the system</p><h2>Retrieval console</h2></div><span className="mode-chip">bounded agent · v0.1</span></div><div className="conversation">
           {conversation.length === 0 && <div className="welcome"><div className="orb">✦</div><h3>Ask a question about your corpus</h3><p>Every answer stays inspectable: sources, scores, tools, and timing are surfaced alongside the response.</p><div className="suggestions"><button onClick={() => setQuestion("Which systems store document chunks?")}>Which systems store document chunks?</button><button onClick={() => setQuestion("What happens during a Sev-1 incident?")}>What happens during a Sev-1 incident?</button></div></div>}
-          {conversation.map((response, index) => <article className="answer-card" key={`${response.diagnostics.request_id}-${index}`}><div className="question-line"><span className="user-dot">you</span><span>{index === conversation.length - 1 && activeResponse === response ? "Latest question" : "Question"}</span></div><p className="answer-text">{response.answer}</p><div className="citation-list">{response.citations.map((citation) => <button className="citation" key={citation.chunk_id} onClick={() => setActiveResponse(response)}><span>↳</span><span><strong>{citation.document_name}</strong><small>{citation.excerpt}</small></span></button>)}</div></article>)}
+          {conversation.map(({ question: submittedQuestion, response }, index) => <article className="answer-card" key={`${response.diagnostics.request_id}-${index}`}><div className="question-line"><span className="user-dot">you</span><span>{index === conversation.length - 1 && activeResponse === response ? "Latest question" : "Question"}</span></div><p className="submitted-question">{submittedQuestion}</p><div className="answer-label">retrieval answer</div><p className="answer-text">{response.answer}</p><div className="citation-list">{response.citations.map((citation) => <button className="citation" key={citation.chunk_id} onClick={() => setActiveResponse(response)}><span>↳</span><span><strong>{citation.document_name}</strong><small>{citation.excerpt}</small></span></button>)}</div></article>)}
         </div><form className="question-form" onSubmit={submitQuestion}><input value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask about the indexed documents…" aria-label="Question" /><button className="send-button" disabled={busy || !question.trim()}>{busy ? "…" : "Run query"}<span>↗</span></button></form>{message && <p className="status-message">{message}</p>}</section>
         <aside className="panel diagnostics-panel"><div className="panel-heading"><div><p className="section-kicker">03 / observability</p><h2>Diagnostics</h2></div><span className="live-badge">LIVE</span></div>{!diagnostics ? <div className="diagnostics-empty"><span>⌁</span><p>Run a query to inspect the retrieval trace.</p></div> : <div className="diagnostics-content"><div className="metric-grid"><Metric label="Total" value={`${diagnostics.total_latency_ms.toFixed(0)} ms`} /><Metric label="Retrieval" value={`${diagnostics.retrieval_latency_ms.toFixed(0)} ms`} /><Metric label="Provider" value={diagnostics.provider} /><Metric label="Chunks" value={`${diagnostics.retrieved_chunks} → ${diagnostics.reranked_chunks}`} /></div><div className="trace-block"><div className="trace-title">Request trace <code>{diagnostics.request_id.slice(0, 8)}</code></div><TraceStep label="retrieve" value={`${diagnostics.retrieval_latency_ms.toFixed(1)} ms`} /><TraceStep label="rerank" value={`${diagnostics.retrieval.length} candidates`} /><TraceStep label="generate" value={`${diagnostics.generation_latency_ms.toFixed(1)} ms`} /></div><div className="score-block"><div className="trace-title">Retrieval scores <span>top candidates</span></div>{diagnostics.retrieval.map((item) => <div className="score-row" key={item.chunk_id}><span>{item.document_name}</span><span className="score-value">{item.hybrid_score.toFixed(2)}</span><div className="score-bar"><i style={{ width: `${Math.min(100, item.hybrid_score * 100)}%` }} /></div></div>)}</div><div className="token-footer">Estimated tokens <strong>{diagnostics.estimated_input_tokens + diagnostics.estimated_output_tokens}</strong><span>{activeResponse.tools_used.length ? activeResponse.tools_used.join(", ") : "no tools"}</span></div></div>}</aside>
       </div>
