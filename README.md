@@ -40,7 +40,7 @@ The Swagger capture shows the implemented health, document, demo seed, chat, and
 
 ![Prometheus metrics output](docs/assets/metrics.png)
 
-The metrics capture shows live request counters and latency histograms produced by the running service.
+The metrics capture shows live request counters and latency histograms produced by the running service, including retrieval, reranking, generation, and total request latency.
 
 The screenshots are versioned under docs/assets and were generated from the running local application. During live validation I also confirmed:
 

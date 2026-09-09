@@ -26,7 +26,7 @@ flowchart LR
 1. `POST /api/documents` extracts supported text, chunks it, writes metadata and chunks to SQLite, then embeds and upserts chunks into local Qdrant. `POST /api/demo/seed` loads the five bundled documents idempotently. `GET` lists indexed documents and `DELETE` removes both relational and vector records.
 2. `POST /api/chat` rebuilds the lexical index from persisted chunks, retrieves lexical and vector candidates, normalizes and combines scores, and reranks the candidates.
 3. The bounded orchestrator can use the calculator when a question requires arithmetic, then asks the configured provider for a structured answer. The response includes citations and diagnostics.
-4. Middleware assigns a request ID and records request metrics. Chat diagnostics report retrieval, reranking, generation, token estimates, provider, tools, scores, timings, context usage, and conflict signals. `GET /api/traces/{request_id}` returns the in-process trace timeline.
+4. Middleware assigns a request ID and records request metrics. Chat diagnostics report retrieval, reranking, generation, token estimates, provider, tools, scores, timings, context usage, and conflict signals. Prometheus exposes separate retrieval, reranking, generation, and request latency histograms. `GET /api/traces/{request_id}` returns the in-process trace timeline.
 
 The health and metrics routes are available both at `/health` and `/api/health`, and at `/metrics` and `/api/metrics`, so local development and the documented API prefix remain compatible.
 
