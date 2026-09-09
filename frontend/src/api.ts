@@ -43,8 +43,10 @@ export type ChatResponse = {
   };
 };
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "/api").replace(/\/$/, "");
+
 const request = async <T,>(path: string, init?: RequestInit): Promise<T> => {
-  const response = await fetch(`/api${path}`, init);
+  const response = await fetch(`${API_BASE_URL}${path}`, init);
   if (!response.ok) {
     const body = await response.json().catch(() => ({ detail: "Request failed" }));
     throw new Error(body.detail ?? "Request failed");
