@@ -52,9 +52,8 @@ def main() -> int:
             [sys.executable, "-m", "uvicorn", "app.main:app", "--host", HOST, "--port", str(port)],
             cwd=BACKEND,
             env=environment,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
         )
         try:
             with httpx.Client(timeout=30.0) as client:
