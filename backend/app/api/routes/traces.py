@@ -11,7 +11,7 @@ class TraceResponse(BaseModel):
     entries: list[dict[str, object]]
 
 
-@router.get("/{request_id}", response_model=TraceResponse)
+@router.get("/{request_id}", response_model=TraceResponse, summary="Inspect a request trace")
 def trace(request_id: str) -> TraceResponse:
     entries = get_trace(request_id)
     if entries is None:

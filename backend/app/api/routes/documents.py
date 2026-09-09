@@ -27,7 +27,7 @@ def get_session() -> Generator[Session, None, None]:
         yield session
 
 
-@router.post("", response_model=DocumentResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=DocumentResponse, status_code=status.HTTP_201_CREATED, summary="Upload a document")
 async def upload_document(
     file: UploadFile = File(...),
     session: Session = Depends(get_session),
@@ -77,7 +77,7 @@ async def upload_document(
     )
 
 
-@router.get("", response_model=list[DocumentResponse])
+@router.get("", response_model=list[DocumentResponse], summary="List indexed documents")
 def list_documents(session: Session = Depends(get_session)) -> list[DocumentResponse]:
     return [
         DocumentResponse(
@@ -90,7 +90,7 @@ def list_documents(session: Session = Depends(get_session)) -> list[DocumentResp
     ]
 
 
-@router.delete("/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{document_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete an indexed document")
 def delete_document(document_id: str, session: Session = Depends(get_session)) -> None:
     repository = DocumentRepository(session)
     document = repository.get(document_id)
@@ -105,7 +105,7 @@ def delete_document(document_id: str, session: Session = Depends(get_session)) -
             raise HTTPException(status_code=503, detail="Document deletion is temporarily unavailable") from exc
 
 
-@router.post("/demo/seed", response_model=list[DocumentResponse])
+@router.post("/demo/seed", response_model=list[DocumentResponse], summary="Seed the demo corpus")
 def seed_demo_documents(session: Session = Depends(get_session)) -> list[DocumentResponse]:
     from pathlib import Path
 
