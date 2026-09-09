@@ -238,7 +238,7 @@ npm run lint
 npm run build
 ~~~
 
-The evaluation compares vector-only, hybrid, and hybrid-plus-reranking retrieval using Hit Rate@5, MRR, normalized expected-fact coverage, and average latency. Fact coverage is normalized text matching for the controlled dataset, not semantic factuality evaluation.
+The evaluation compares BM25, vector, hybrid, and hybrid-plus-reranking retrieval using Hit@1/3/5, Recall@5, MRR, normalized expected-fact coverage, and average/p50/p95 latency. The latest generated values are committed in [docs/evaluation/latest.md](docs/evaluation/latest.md). Fact coverage is normalized text matching for the controlled dataset, not semantic factuality evaluation.
 
 ## Development report
 
