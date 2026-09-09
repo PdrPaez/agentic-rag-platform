@@ -42,6 +42,7 @@ def test_chat_returns_structured_answer_and_citation() -> None:
         body = response.json()
         assert response.status_code == 200
         assert body["answer"] == "Answer from Useful context"
+        assert body["answer_status"] == "answered"
         assert body["citations"][0]["document_name"] == "Guide.md"
         assert body["diagnostics"]["retrieved_chunks"] == 1
     finally:
@@ -63,6 +64,7 @@ def test_chat_uses_calculator_tool_without_citations() -> None:
         assert body["answer"] == "Calculated 5"
         assert body["citations"] == []
         assert body["tools_used"] == ["calculator"]
+        assert body["answer_status"] == "tool_result"
     finally:
         chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider = original
         app.dependency_overrides.clear()

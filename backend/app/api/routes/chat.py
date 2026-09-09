@@ -1,4 +1,5 @@
 from time import perf_counter
+from typing import Literal
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, Request
@@ -54,6 +55,7 @@ class ChatDiagnostics(BaseModel):
 
 class ChatResponse(BaseModel):
     answer: str
+    answer_status: Literal["answered", "insufficient_context", "tool_result"]
     citations: list[Citation]
     tools_used: list[str]
     diagnostics: ChatDiagnostics
@@ -134,6 +136,11 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
     )
     return ChatResponse(
         answer=answer,
+        answer_status=(
+            "tool_result" if "calculator" in result.tools_used
+            else "answered" if reranked
+            else "insufficient_context"
+        ),
         citations=[
             Citation(
                 document_id=candidate.document_id,
