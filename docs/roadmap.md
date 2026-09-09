@@ -8,6 +8,10 @@ Both documents are versioned in the repository so work can resume consistently a
 
 The latest user-provided master prompt is authoritative for the portfolio upgrade. When a newer attached version is supplied, update `master-prompt.md` in the same ARAG card that records the roadmap change, then continue from the first incomplete implementation or hardening card it identifies.
 
+## Current implementation checkpoint
+
+The repository is currently synchronized through `ARAG-131`. Recent validated hardening includes deterministic ranking tie-breaking, independent benchmark latency measurement, structured retrieval metadata, recursive trace-secret redaction, controlled provider and demo-seed failures, and complete runtime configuration documentation. The latest backend validation reports 71 passing tests and a clean Ruff run; frontend lint and production build remain part of the promotion gate.
+
 ## Operating rule
 
 For each meaningful task, resume from the first incomplete `ARAG-XXX` card and follow:
