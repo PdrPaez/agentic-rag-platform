@@ -2,7 +2,7 @@ from time import perf_counter
 from typing import Literal
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
@@ -107,12 +107,17 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
         record_trace(request_id, "reranking_completed", (perf_counter() - rank_started) * 1000, candidates=len(ranked))
         return ranked
 
-    result = BoundedOrchestrator(
-        TimedProvider(get_provider(), timings, request_id),
-        retrieve,
-        rank,
-        max_context_characters=get_settings().max_context_characters,
-    ).run(payload.question)
+    try:
+        result = BoundedOrchestrator(
+            TimedProvider(get_provider(), timings, request_id),
+            retrieve,
+            rank,
+            max_context_characters=get_settings().max_context_characters,
+        ).run(payload.question)
+    except RuntimeError as exc:
+        if str(exc) != "The LLM provider is unavailable":
+            raise
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
     GENERATION_LATENCY.observe(timings["generation_latency_ms"] / 1000)
     reranked = result.ranked_candidates
     answer = result.answer

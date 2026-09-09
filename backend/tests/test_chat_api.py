@@ -37,6 +37,11 @@ class CalculatorProvider(FakeProvider):
         return f"Calculated {tool_result}"
 
 
+class UnavailableProvider(FakeProvider):
+    def generate(self, query: str, context: Sequence[str], tool_result: str | None = None) -> str:
+        raise RuntimeError("The LLM provider is unavailable")
+
+
 def test_chat_returns_structured_answer_and_citation() -> None:
     app.dependency_overrides[get_session] = lambda: iter([object()])
     original = (chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider)
@@ -91,6 +96,22 @@ def test_chat_reports_insufficient_context_without_citations() -> None:
         assert body["answer_status"] == "insufficient_context"
         assert body["citations"] == []
         assert body["tools_used"] == []
+    finally:
+        chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider = original
+        app.dependency_overrides.clear()
+
+
+def test_chat_returns_service_unavailable_when_provider_is_down() -> None:
+    app.dependency_overrides[get_session] = lambda: iter([object()])
+    original = (chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider)
+    chat_route.get_retriever = lambda: FakeRetriever()
+    chat_route.get_reranker = lambda: FakeReranker()
+    chat_route.get_provider = lambda: UnavailableProvider()
+    try:
+        response = TestClient(app).post("/api/chat", json={"question": "What is useful?"})
+
+        assert response.status_code == 503
+        assert response.json()["detail"] == "The LLM provider is unavailable"
     finally:
         chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider = original
         app.dependency_overrides.clear()
