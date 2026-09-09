@@ -1,21 +1,38 @@
-# Security boundaries
+# Security model
 
-The platform is a local-first reference implementation, not a complete enterprise security system. Its security boundary is intentionally explicit:
+This local-first reference implementation demonstrates explicit security boundaries; it is not a complete enterprise security system.
 
-- Retrieved documents are evidence, not instructions. Providers are told to answer from supplied context and must not execute commands or follow instructions embedded in document text.
-- The calculator accepts a restricted arithmetic grammar and evaluates expressions without Python `eval`.
-- Uploads are limited by `MAX_UPLOAD_SIZE_BYTES` and supported file types are validated before ingestion.
-- Provider keys are read from environment configuration and are never included in request traces or application logs; trace metadata redaction recursively covers nested structures and common key naming variants.
-- The deterministic mock provider is the default, so local development and CI do not require credentials or external calls.
+## Threat model
+
+The system considers retrieved prompt injection, unsafe tool requests, path traversal, malicious filenames, oversized uploads, malformed provider responses, and accidental secret exposure.
+
+## Implemented mitigations
+
+- Retrieved content is untrusted evidence and is delimited before provider generation.
+- Tools are allowlisted, calculator arguments use a restricted arithmetic grammar, and Python `eval` is not used.
+- Upload size, supported file type, and filename/path handling are validated before ingestion.
+- Provider failures are normalized and trace metadata is recursively redacted for secret-like keys and values.
+
+## RAG prompt injection
+
+Provider instructions explicitly say not to follow instructions found in retrieved context. The adversarial fixture in `backend/tests/fixtures/adversarial-document.md` verifies that retrieved text remains context and does not trigger another tool or alter orchestration.
+
+## Tool execution
+
+The bounded orchestrator exposes only `search_knowledge_base` and `calculator`. Calculator evaluation accepts numeric arithmetic nodes and rejects arbitrary code, names, attributes, and unsupported operators.
+
+## Upload handling
+
+TXT, Markdown, and PDF uploads are checked for supported extensions, size limits, and normalized safe names. Stored document identifiers and vector deletion are managed together.
+
+## Secrets and observability
+
+Provider keys come from environment configuration and are not recorded in traces or application logs. Failure responses expose controlled messages rather than provider stack traces or credentials.
 
 ## Known limitations
 
-Authentication, authorization, tenant isolation, malware scanning, encrypted storage, and production secret management are out of scope. A production deployment must add those controls before exposing private documents to untrusted users.
+Authentication, authorization, tenant isolation, malware scanning, encrypted storage, and production secret management are out of scope. Prompt-injection defenses cannot guarantee semantic model compliance for every provider, and conflict detection is limited to a conservative numeric heuristic.
 
-## Prompt-injection boundary
+## Production hardening
 
-Prompt-injection content can still be stored as ordinary document text. The application treats it as retrievable evidence and does not grant it tool or system authority. Provider-backed deployments should add model-specific policy controls and audit them separately.
-
-## Conflicting evidence
-
-The chat pipeline conservatively flags divergent numeric values from different relevant documents and returns a partial answer with both citations. This is a safety signal, not semantic contradiction proof: textual, qualitative, and domain-specific conflicts may require human review.
+Before exposing private documents, add identity and authorization controls, secret-manager integration, encrypted storage, malware scanning, rate limits, provider-specific policy controls, and security monitoring.
