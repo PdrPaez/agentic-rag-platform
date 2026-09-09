@@ -44,6 +44,20 @@ def test_openai_provider_reports_transport_failure(monkeypatch: pytest.MonkeyPat
         OpenAICompatibleProvider("key", "model", "https://example.com/v1").generate("Q", [])
 
 
+def test_openai_provider_rejects_malformed_json(monkeypatch: pytest.MonkeyPatch) -> None:
+    class FakeResponse:
+        def raise_for_status(self) -> None:
+            pass
+
+        def json(self) -> dict[str, object]:
+            raise ValueError("malformed JSON")
+
+    monkeypatch.setattr("app.llm.providers.httpx.post", lambda *args, **kwargs: FakeResponse())
+
+    with pytest.raises(ValueError, match="invalid response"):
+        OpenAICompatibleProvider("key", "model", "https://example.com/v1").generate("Q", [])
+
+
 def test_openai_provider_reports_timeout(monkeypatch: pytest.MonkeyPatch) -> None:
     def timeout(*args: object, **kwargs: object) -> None:
         raise __import__("httpx").ReadTimeout("timed out")
