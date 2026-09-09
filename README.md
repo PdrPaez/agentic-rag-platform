@@ -14,7 +14,7 @@ The default setup runs without a paid LLM account through a deterministic mock p
 - **Hybrid retrieval:** BM25 lexical retrieval, sentence-transformer embeddings, local Qdrant search, normalized hybrid scoring, and CrossEncoder reranking.
 - **Bounded agent:** maximum three iterations and exactly two tools: search_knowledge_base and calculator.
 - **Inspectable answers:** structured citations, provider name, retrieved and reranked counts, scores, token estimates, timings, and tools used.
-- **Grounding safeguards:** insufficient-context responses, partial answers for truncated or conflicting evidence, and citations for source review.
+- **Grounding safeguards:** grounded responses with explicit citations, partial-answer handling, and abstention when indexed evidence is insufficient.
 - **Operations:** request IDs, in-process traces, Prometheus metrics, health endpoints, and deterministic evaluation.
 - **Quality gates:** pytest, Ruff, TypeScript validation, frontend production build, and CI checks.
 
@@ -95,6 +95,27 @@ universal RAG performance.
 
 Run `python -m app.evaluation.run` from `backend` to reproduce the benchmark. The complete generated results are
 available in [docs/evaluation/](docs/evaluation/), including JSON and Markdown reports.
+
+## Grounded answer behavior
+
+The chat contract exposes `answer_status` so a response does not imply more certainty than the indexed evidence
+supports. `answered` is used when ranked evidence fits the context budget; `partial` is used when the context is
+truncated or the retrieved sources conflict; and `insufficient_context` abstains with no citations when retrieval
+cannot support the question. Citations identify the document and chunk excerpts used as evidence. Calculator results
+use `tool_result` and do not inherit unrelated document citations.
+
+For example, an unsupported question returns:
+
+```json
+{
+  "answer_status": "insufficient_context",
+  "citations": [],
+  "tools_used": []
+}
+```
+
+The behavior is covered by [chat API tests](backend/tests/test_chat_api.py), including abstention, context-budget
+truncation, conflicting evidence, and calculator citation isolation.
 
 ## Repository layout
 
