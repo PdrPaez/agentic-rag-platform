@@ -96,8 +96,13 @@ def delete_document(document_id: str, session: Session = Depends(get_session)) -
     document = repository.get(document_id)
     if document is not None:
         repository.delete(document)
-        session.commit()
-        vector_store.delete_document(document_id)
+        try:
+            vector_store.delete_document(document_id)
+            session.commit()
+        except Exception as exc:
+            session.rollback()
+            ERROR_COUNT.labels("document_deletion").inc()
+            raise HTTPException(status_code=503, detail="Document deletion is temporarily unavailable") from exc
 
 
 @router.post("/demo/seed", response_model=list[DocumentResponse])
