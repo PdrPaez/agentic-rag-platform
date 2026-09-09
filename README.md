@@ -80,6 +80,22 @@ The detailed request flow is documented in [docs/architecture.md](docs/architect
 documented in [docs/retrieval.md](docs/retrieval.md), and significant technical choices are recorded in
 [docs/decisions.md](docs/decisions.md).
 
+## Retrieval benchmark
+
+The following results come from the bundled deterministic benchmark: five documents, 30 queries, and 20% negative
+cases. Latency is machine-dependent, and these results describe only the controlled evaluation corpus rather than
+universal RAG performance.
+
+| Strategy | Hit@5 | Recall@5 | MRR | Avg latency (ms) | P95 (ms) |
+|---|---:|---:|---:|---:|---:|
+| BM25 | 0.77 | 0.77 | 0.77 | 0.25 | 0.17 |
+| Vector | 0.80 | 0.80 | 0.65 | 0.08 | 0.10 |
+| Hybrid | 0.80 | 0.80 | 0.78 | 0.59 | 0.62 |
+| Hybrid + rerank | 0.80 | 0.80 | 0.80 | 0.08 | 0.09 |
+
+Run `python -m app.evaluation.run` from `backend` to reproduce the benchmark. The complete generated results are
+available in [docs/evaluation/](docs/evaluation/), including JSON and Markdown reports.
+
 ## Repository layout
 
 ~~~text
