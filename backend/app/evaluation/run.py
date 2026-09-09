@@ -154,6 +154,8 @@ def evaluate() -> tuple[list[StageResult], float, float]:
     stage_latencies: dict[str, list[float]] = {name: [] for name in stage_documents}
     fact_coverage: list[float] = []
     latencies: list[float] = []
+    lexical_index = LexicalIndex()
+    lexical_index.rebuild(chunks)
 
     engine = create_engine("sqlite://")
     Base.metadata.create_all(engine)
@@ -162,9 +164,7 @@ def evaluate() -> tuple[list[StageResult], float, float]:
         session.commit()
         for case in cases:
             started = time.perf_counter()
-            lexical = LexicalIndex()
-            lexical.rebuild(chunks)
-            lexical_matches = lexical.search(case.question, 5)
+            lexical_matches = lexical_index.search(case.question, 5)
             stage_documents["BM25"].append([match.document_id for match in lexical_matches])
             stage_latencies["BM25"].append((time.perf_counter() - started) * 1000)
 
