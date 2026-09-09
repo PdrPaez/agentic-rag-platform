@@ -73,6 +73,19 @@ def main() -> int:
                 assert body["diagnostics"]["request_id"] == "http-smoke-chat"
                 assert body["diagnostics"]["reranking_latency_ms"] >= 0
 
+                calculation = client.post(
+                    f"{base_url}/chat",
+                    json={"question": "Calculate 20 / 4"},
+                    headers={"x-request-id": "http-smoke-calculator"},
+                )
+                assert calculation.status_code == 200
+                assert calculation.json()["answer_status"] == "tool_result"
+                assert calculation.json()["citations"] == []
+
+                trace = client.get(f"{base_url}/traces/http-smoke-chat")
+                assert trace.status_code == 200
+                assert any(entry["stage"] == "generation_completed" for entry in trace.json()["entries"])
+
                 metrics = client.get(f"{base_url}/metrics")
                 assert metrics.status_code == 200
                 assert "rag_reranking_latency_seconds" in metrics.text
