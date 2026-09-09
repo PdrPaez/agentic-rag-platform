@@ -198,11 +198,15 @@ def write_artifacts(results: list[StageResult]) -> None:
     destination = ROOT.parent.parent.parent / "docs" / "evaluation"
     destination.mkdir(parents=True, exist_ok=True)
     cases = load_cases()
+    from app.evaluation.answer_behavior import evaluate_bundled_answer_behavior
+
+    answer_behavior = evaluate_bundled_answer_behavior()
     negative_cases = sum(not case.expected_document and not case.expected_facts for case in cases)
     payload = {
         "dataset_cases": len(cases),
         "negative_cases": negative_cases,
         "negative_case_ratio": negative_cases / len(cases),
+        "answer_behavior": answer_behavior.__dict__,
         "strategies": [result.__dict__ for result in results],
     }
     (destination / "latest.json").write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
@@ -210,6 +214,10 @@ def write_artifacts(results: list[StageResult]) -> None:
         "# Retrieval evaluation",
         "",
         f"Deterministic benchmark on the bundled corpus ({len(cases)} cases; {negative_cases / len(cases):.0%} negative). Fact coverage uses normalized text matching and is not semantic factuality evaluation.",
+        "",
+        "## Answer behavior",
+        "",
+        f"Abstention accuracy: {answer_behavior.abstention_accuracy:.2f}; citation presence accuracy: {answer_behavior.citation_presence_accuracy:.2f}; expected fact coverage: {answer_behavior.expected_fact_coverage:.2f}.",
         "",
         "| Strategy | Hit@1 | Hit@3 | Hit@5 | Recall@5 | MRR | Fact coverage | Avg ms | P50 ms | P95 ms |",
         "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",

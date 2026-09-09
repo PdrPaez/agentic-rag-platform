@@ -2,6 +2,14 @@
   "dataset_cases": 30,
   "negative_cases": 6,
   "negative_case_ratio": 0.2,
+  "answer_behavior": {
+    "cases": 30,
+    "answerable_cases": 24,
+    "abstention_cases": 6,
+    "abstention_accuracy": 0.8,
+    "citation_presence_accuracy": 0.8,
+    "expected_fact_coverage": 1.0
+  },
   "strategies": [
     {
       "name": "BM25",
@@ -10,9 +18,9 @@
       "hit_rate_at_5": 0.8,
       "recall_at_5": 0.8,
       "mean_reciprocal_rank": 0.7666666666666667,
-      "average_latency_ms": 0.4240033340465743,
-      "p50_latency_ms": 0.33090000215452164,
-      "p95_latency_ms": 0.36099999852012843,
+      "average_latency_ms": 0.43134999941685237,
+      "p50_latency_ms": 0.3276999996160157,
+      "p95_latency_ms": 0.3724999987753108,
       "fact_coverage": 0.8
     },
     {
@@ -22,9 +30,9 @@
       "hit_rate_at_5": 0.8,
       "recall_at_5": 0.8,
       "mean_reciprocal_rank": 0.6083333333333333,
-      "average_latency_ms": 0.5062700001872145,
-      "p50_latency_ms": 0.4121000019949861,
-      "p95_latency_ms": 0.45340000360738486,
+      "average_latency_ms": 0.515113333191645,
+      "p50_latency_ms": 0.4107999993721023,
+      "p95_latency_ms": 0.4602999979397282,
       "fact_coverage": 0.8
     },
     {
@@ -34,9 +42,9 @@
       "hit_rate_at_5": 0.8,
       "recall_at_5": 0.8,
       "mean_reciprocal_rank": 0.7444444444444444,
-      "average_latency_ms": 1.200793333312807,
-      "p50_latency_ms": 1.0973000025842339,
-      "p95_latency_ms": 1.1940000040340237,
+      "average_latency_ms": 1.2088766661084567,
+      "p50_latency_ms": 1.08860000182176,
+      "p95_latency_ms": 1.1980999988736585,
       "fact_coverage": 0.8
     },
     {
@@ -46,9 +54,9 @@
       "hit_rate_at_5": 0.8,
       "recall_at_5": 0.8,
       "mean_reciprocal_rank": 0.74,
-      "average_latency_ms": 1.2012199995903454,
-      "p50_latency_ms": 1.097799999115523,
-      "p95_latency_ms": 1.1945000005653128,
+      "average_latency_ms": 1.209279999602586,
+      "p50_latency_ms": 1.088900004106108,
+      "p95_latency_ms": 1.1984999946434982,
       "fact_coverage": 0.8
     }
   ]

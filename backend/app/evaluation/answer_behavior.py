@@ -5,8 +5,21 @@ from __future__ import annotations
 from collections.abc import Sequence
 from dataclasses import dataclass
 
-from app.evaluation.run import EvaluationCase, _canonical_tokens
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
+
+from app.core.config import Settings
+from app.db.database import Base
+from app.evaluation.run import (
+    DeterministicEmbedder,
+    DeterministicVectorStore,
+    EvaluationCase,
+    _canonical_tokens,
+    load_cases,
+    load_chunks,
+)
 from app.rag.hybrid import HybridCandidate
+from app.rag.retriever import HybridRetriever
 
 
 @dataclass(frozen=True)
@@ -17,6 +30,20 @@ class AnswerBehaviorSummary:
     abstention_accuracy: float
     citation_presence_accuracy: float
     expected_fact_coverage: float
+
+
+def evaluate_bundled_answer_behavior() -> AnswerBehaviorSummary:
+    cases = load_cases()
+    chunks = load_chunks()
+    embedder = DeterministicEmbedder()
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    with Session(engine) as session:
+        session.add_all(chunks)
+        session.commit()
+        retriever = HybridRetriever(embedder, DeterministicVectorStore(chunks, embedder), Settings(retrieval_candidate_count=5))
+        retrieved = [retriever.search(case.question, session) for case in cases]
+    return evaluate_answer_behavior(cases, retrieved)
 
 
 def evaluate_answer_behavior(
