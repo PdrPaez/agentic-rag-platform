@@ -34,6 +34,10 @@ jobs:
         working-directory: backend
         run: python -m ruff check app tests
 
+      - name: Check Python formatting
+        working-directory: backend
+        run: python -m ruff format --check app tests
+
       - name: Run backend tests
         working-directory: backend
         run: python -m pytest --cov=app --cov-report=term-missing --cov-fail-under=85

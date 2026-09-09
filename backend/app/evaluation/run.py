@@ -25,9 +25,18 @@ from app.rag.vector_store import VectorMatch
 
 ROOT = Path(__file__).parent
 TOKEN_ALIASES = {
-    "database": "qdrant", "vector": "qdrant", "latency": "response", "respond": "response",
-    "severity": "sev", "outage": "incident", "approval": "approvals", "merge": "merged",
-    "formatting": "ruff", "formatter": "ruff", "deadline": "target", "initial": "first",
+    "database": "qdrant",
+    "vector": "qdrant",
+    "latency": "response",
+    "respond": "response",
+    "severity": "sev",
+    "outage": "incident",
+    "approval": "approvals",
+    "merge": "merged",
+    "formatting": "ruff",
+    "formatter": "ruff",
+    "deadline": "target",
+    "initial": "first",
 }
 
 
@@ -85,13 +94,24 @@ class DeterministicVectorStore:
 
     def __init__(self, chunks: list[ChunkRecord], embedder: DeterministicEmbedder) -> None:
         self._matches = [
-            (chunk, vector) for chunk, vector in zip(chunks, embedder.encode([chunk.text for chunk in chunks]), strict=True)
+            (chunk, vector)
+            for chunk, vector in zip(
+                chunks, embedder.encode([chunk.text for chunk in chunks]), strict=True
+            )
         ]
 
     def search(self, vector: list[float], limit: int) -> list[VectorMatch]:
         ranked = sorted(self._matches, key=lambda pair: _cosine(vector, pair[1]), reverse=True)
         return [
-            VectorMatch(chunk.id, _cosine(vector, candidate_vector), {"document_id": chunk.document_id, "text": chunk.text, "document_name": chunk.document_id})
+            VectorMatch(
+                chunk.id,
+                _cosine(vector, candidate_vector),
+                {
+                    "document_id": chunk.document_id,
+                    "text": chunk.text,
+                    "document_name": chunk.document_id,
+                },
+            )
             for chunk, candidate_vector in ranked[:limit]
         ]
 
@@ -104,17 +124,29 @@ def load_cases() -> list[EvaluationCase]:
     data = json.loads((ROOT / "dataset.json").read_text(encoding="utf-8"))
     if len(data) != 30:
         raise ValueError("The bundled evaluation dataset must contain exactly 30 cases")
-    return [EvaluationCase(item["question"], item["expected_document"], tuple(item["expected_facts"])) for item in data]
+    return [
+        EvaluationCase(item["question"], item["expected_document"], tuple(item["expected_facts"]))
+        for item in data
+    ]
 
 
 def load_chunks() -> list[ChunkRecord]:
     chunks: list[ChunkRecord] = []
     for path in sorted((ROOT / "documents").glob("*.md")):
-        chunks.append(ChunkRecord(id=path.stem, document_id=path.name, chunk_index=0, text=path.read_text(encoding="utf-8")))
+        chunks.append(
+            ChunkRecord(
+                id=path.stem,
+                document_id=path.name,
+                chunk_index=0,
+                text=path.read_text(encoding="utf-8"),
+            )
+        )
     return chunks
 
 
-def _document_ids(items: Sequence[HybridCandidate | tuple[HybridCandidate, float] | VectorMatch]) -> list[str]:
+def _document_ids(
+    items: Sequence[HybridCandidate | tuple[HybridCandidate, float] | VectorMatch],
+) -> list[str]:
     values = []
     for item in items:
         candidate = item[0] if isinstance(item, tuple) else item
@@ -149,7 +181,12 @@ def evaluate() -> tuple[list[StageResult], float, float]:
     vector_store = DeterministicVectorStore(chunks, embedder)
     retriever = HybridRetriever(embedder, vector_store, Settings(retrieval_candidate_count=5))
     reranker = DeterministicReranker()
-    stage_documents: dict[str, list[list[str]]] = {"BM25": [], "Vector": [], "Hybrid": [], "Hybrid + reranking": []}
+    stage_documents: dict[str, list[list[str]]] = {
+        "BM25": [],
+        "Vector": [],
+        "Hybrid": [],
+        "Hybrid + reranking": [],
+    }
     stage_facts: dict[str, list[float]] = {name: [] for name in stage_documents}
     stage_latencies: dict[str, list[float]] = {name: [] for name in stage_documents}
     fact_coverage: list[float] = []
@@ -184,19 +221,53 @@ def evaluate() -> tuple[list[StageResult], float, float]:
             stage_documents["Hybrid + reranking"].append(_document_ids(reranked))
             stage_latencies["Hybrid + reranking"].append((time.perf_counter() - started) * 1000)
             for name in stage_documents:
-                texts = [chunk.text for chunk in chunks if chunk.document_id in stage_documents[name][-1]]
+                texts = [
+                    chunk.text for chunk in chunks if chunk.document_id in stage_documents[name][-1]
+                ]
                 corpus = " ".join(_canonical_tokens(" ".join(texts)))
-                coverage = (sum(" ".join(_canonical_tokens(fact)) in corpus for fact in case.expected_facts) / len(case.expected_facts) if case.expected_facts else 0.0)
+                coverage = (
+                    sum(" ".join(_canonical_tokens(fact)) in corpus for fact in case.expected_facts)
+                    / len(case.expected_facts)
+                    if case.expected_facts
+                    else 0.0
+                )
                 stage_facts[name].append(coverage)
             retrieved_text = " ".join(item.text for item in hybrid)
-            fact_coverage.append(sum(_canonical_tokens(fact) and " ".join(_canonical_tokens(fact)) in " ".join(_canonical_tokens(retrieved_text)) for fact in case.expected_facts) / len(case.expected_facts) if case.expected_facts else 0.0)
+            fact_coverage.append(
+                sum(
+                    _canonical_tokens(fact)
+                    and " ".join(_canonical_tokens(fact))
+                    in " ".join(_canonical_tokens(retrieved_text))
+                    for fact in case.expected_facts
+                )
+                / len(case.expected_facts)
+                if case.expected_facts
+                else 0.0
+            )
             latencies.append((time.perf_counter() - started) * 1000)
 
     results: list[StageResult] = []
     for name, rankings in stage_documents.items():
-        ranks = [_rank_of(case.expected_document, ranking) for case, ranking in zip(cases, rankings, strict=True)]
+        ranks = [
+            _rank_of(case.expected_document, ranking)
+            for case, ranking in zip(cases, rankings, strict=True)
+        ]
         lat = stage_latencies[name]
-        results.append(StageResult(name, *(sum(rank is not None and rank <= k for rank in ranks) / len(ranks) for k in (1, 3, 5)), sum(rank is not None and rank <= 5 for rank in ranks) / len(ranks), sum(1 / rank if rank else 0 for rank in ranks) / len(ranks), fmean(lat), _percentile(lat, .50), _percentile(lat, .95), fmean(stage_facts[name])))
+        results.append(
+            StageResult(
+                name,
+                *(
+                    sum(rank is not None and rank <= k for rank in ranks) / len(ranks)
+                    for k in (1, 3, 5)
+                ),
+                sum(rank is not None and rank <= 5 for rank in ranks) / len(ranks),
+                sum(1 / rank if rank else 0 for rank in ranks) / len(ranks),
+                fmean(lat),
+                _percentile(lat, 0.50),
+                _percentile(lat, 0.95),
+                fmean(stage_facts[name]),
+            )
+        )
     return results, sum(fact_coverage) / len(fact_coverage), sum(latencies) / len(latencies)
 
 
@@ -229,7 +300,9 @@ def write_artifacts(results: list[StageResult]) -> None:
         "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for result in results:
-        lines.append(f"| {result.name} | {result.hit_rate_at_1:.2f} | {result.hit_rate_at_3:.2f} | {result.hit_rate_at_5:.2f} | {result.recall_at_5:.2f} | {result.mean_reciprocal_rank:.2f} | {result.fact_coverage:.2f} | {result.average_latency_ms:.2f} | {result.p50_latency_ms:.2f} | {result.p95_latency_ms:.2f} |")
+        lines.append(
+            f"| {result.name} | {result.hit_rate_at_1:.2f} | {result.hit_rate_at_3:.2f} | {result.hit_rate_at_5:.2f} | {result.recall_at_5:.2f} | {result.mean_reciprocal_rank:.2f} | {result.fact_coverage:.2f} | {result.average_latency_ms:.2f} | {result.p50_latency_ms:.2f} | {result.p95_latency_ms:.2f} |"
+        )
     (destination / "latest.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -238,7 +311,9 @@ def main() -> None:
     write_artifacts(results)
     print("Retrieval Evaluation")
     for result in results:
-        print(f"\n{result.name}\nHit Rate@5: {result.hit_rate_at_5:.2f}\nMRR:        {result.mean_reciprocal_rank:.2f}")
+        print(
+            f"\n{result.name}\nHit Rate@5: {result.hit_rate_at_5:.2f}\nMRR:        {result.mean_reciprocal_rank:.2f}"
+        )
     print(f"\nExpected Fact Coverage: {coverage:.2f}\nAverage Latency: {latency:.2f} ms")
     print("Fact coverage is normalized text matching, not semantic factuality evaluation.")
 

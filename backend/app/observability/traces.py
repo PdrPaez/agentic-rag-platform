@@ -24,10 +24,9 @@ SENSITIVE_METADATA_KEYS = {"api_key", "authorization", "password", "secret", "to
 
 def _is_sensitive_key(key: object) -> bool:
     normalized = re.sub(r"[^a-z0-9]", "", str(key).lower())
-    return (
-        any(marker in normalized for marker in ("apikey", "authorization", "password", "secret"))
-        or normalized.endswith("token")
-    )
+    return any(
+        marker in normalized for marker in ("apikey", "authorization", "password", "secret")
+    ) or normalized.endswith("token")
 
 
 def _safe_value(value: Any) -> Any:
@@ -52,7 +51,15 @@ def record_trace(request_id: str, stage: str, elapsed_ms: float, **metadata: Any
     entry = TraceEntry(stage, datetime.now(UTC).isoformat(), round(elapsed_ms, 3), safe_metadata)
     with _lock:
         _traces.setdefault(request_id, []).append(entry)
-    logger.info("trace_stage", extra={"request_id": request_id, "stage": stage, "elapsed_ms": entry.elapsed_ms, **safe_metadata})
+    logger.info(
+        "trace_stage",
+        extra={
+            "request_id": request_id,
+            "stage": stage,
+            "elapsed_ms": entry.elapsed_ms,
+            **safe_metadata,
+        },
+    )
 
 
 def get_trace(request_id: str) -> list[dict[str, Any]] | None:

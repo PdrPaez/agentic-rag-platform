@@ -28,7 +28,9 @@ def test_retriever_rebuilds_lexical_index_from_persisted_chunks(tmp_path: Path) 
         session.add(document)
         session.commit()
 
-        results = HybridRetriever(FakeEmbedder(), FakeVectorStore(), Settings()).search("python", session)
+        results = HybridRetriever(FakeEmbedder(), FakeVectorStore(), Settings()).search(
+            "python", session
+        )
 
     assert results[0].chunk_id == "chunk-1"
     assert results[0].bm25_score == 1.0

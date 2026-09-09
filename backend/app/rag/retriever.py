@@ -10,18 +10,26 @@ from app.rag.vector_store import LocalVectorStore
 
 
 class HybridRetriever:
-    def __init__(self, embedder: Embedder, vector_store: LocalVectorStore, settings: Settings) -> None:
+    def __init__(
+        self, embedder: Embedder, vector_store: LocalVectorStore, settings: Settings
+    ) -> None:
         self.embedder = embedder
         self.vector_store = vector_store
         self.settings = settings
 
     def search(self, query: str, session: Session) -> list[HybridCandidate]:
-        chunks = list(session.scalars(select(ChunkRecord).order_by(ChunkRecord.document_id, ChunkRecord.chunk_index)))
+        chunks = list(
+            session.scalars(
+                select(ChunkRecord).order_by(ChunkRecord.document_id, ChunkRecord.chunk_index)
+            )
+        )
         lexical_index = LexicalIndex()
         lexical_index.rebuild(chunks)
         lexical_matches = lexical_index.search(query, self.settings.retrieval_candidate_count)
         query_vector = self.embedder.encode([query])[0]
-        vector_matches = self.vector_store.search(query_vector, self.settings.retrieval_candidate_count)
+        vector_matches = self.vector_store.search(
+            query_vector, self.settings.retrieval_candidate_count
+        )
         return combine_results(
             lexical_matches,
             vector_matches,

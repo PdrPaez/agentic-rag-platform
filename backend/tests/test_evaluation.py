@@ -12,9 +12,15 @@ def test_bundled_evaluation_dataset_is_complete() -> None:
     cases = load_cases()
     assert len(cases) == 30
     assert {chunk.document_id for chunk in load_chunks()} == {
-        "architecture.md", "refund-policy.md", "incident-response.md", "engineering-handbook.md", "support-procedures.md"
+        "architecture.md",
+        "refund-policy.md",
+        "incident-response.md",
+        "engineering-handbook.md",
+        "support-procedures.md",
     }
-    negative_cases = [case for case in cases if not case.expected_document and not case.expected_facts]
+    negative_cases = [
+        case for case in cases if not case.expected_document and not case.expected_facts
+    ]
     assert 0.20 <= len(negative_cases) / len(cases) <= 0.30
 
 

@@ -14,4 +14,6 @@ def seed_demo(session: Session = Depends(get_session)) -> list[DocumentResponse]
     except Exception as exc:
         session.rollback()
         ERROR_COUNT.labels("document_ingestion").inc()
-        raise HTTPException(status_code=503, detail="The demo corpus is temporarily unavailable") from exc
+        raise HTTPException(
+            status_code=503, detail="The demo corpus is temporarily unavailable"
+        ) from exc

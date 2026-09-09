@@ -5,8 +5,7 @@ from typing import Protocol
 class Embedder(Protocol):
     dimension: int
 
-    def encode(self, texts: Sequence[str]) -> list[list[float]]:
-        ...
+    def encode(self, texts: Sequence[str]) -> list[list[float]]: ...
 
 
 class SentenceTransformerEmbedder:
@@ -21,4 +20,3 @@ class SentenceTransformerEmbedder:
     def encode(self, texts: Sequence[str]) -> list[list[float]]:
         vectors = self._model.encode(list(texts), normalize_embeddings=True)
         return vectors.tolist()
-

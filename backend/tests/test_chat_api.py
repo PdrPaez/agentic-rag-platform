@@ -11,6 +11,8 @@ def test_chat_rejects_whitespace_only_questions() -> None:
     response = TestClient(app).post("/api/chat", json={"question": "   "})
 
     assert response.status_code == 422
+
+
 from app.observability.traces import get_trace
 from app.rag.hybrid import HybridCandidate
 
@@ -40,8 +42,24 @@ class OversizedRetriever:
 class ConflictingRetriever:
     def search(self, question: str, session: object) -> list[HybridCandidate]:
         return [
-            HybridCandidate("policy-a", "doc-1", "The refund window is 30 calendar days.", 1.0, 0.5, 0.8, "Policy A.md"),
-            HybridCandidate("policy-b", "doc-2", "The refund window is 45 calendar days.", 0.9, 0.4, 0.7, "Policy B.md"),
+            HybridCandidate(
+                "policy-a",
+                "doc-1",
+                "The refund window is 30 calendar days.",
+                1.0,
+                0.5,
+                0.8,
+                "Policy A.md",
+            ),
+            HybridCandidate(
+                "policy-b",
+                "doc-2",
+                "The refund window is 45 calendar days.",
+                0.9,
+                0.4,
+                0.7,
+                "Policy B.md",
+            ),
         ]
 
 
@@ -215,14 +233,19 @@ def test_chat_surfaces_conflicting_evidence_as_partial() -> None:
     chat_route.get_reranker = lambda: FakeReranker()
     chat_route.get_provider = lambda: FakeProvider()
     try:
-        response = TestClient(app).post("/api/chat", json={"question": "What is the refund window?"})
+        response = TestClient(app).post(
+            "/api/chat", json={"question": "What is the refund window?"}
+        )
 
         body = response.json()
         assert response.status_code == 200
         assert body["answer_status"] == "partial"
         assert "conflicting evidence" in body["answer"]
         assert body["diagnostics"]["conflict_detected"] is True
-        assert [citation["document_name"] for citation in body["citations"]] == ["Policy A.md", "Policy B.md"]
+        assert [citation["document_name"] for citation in body["citations"]] == [
+            "Policy A.md",
+            "Policy B.md",
+        ]
     finally:
         chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider = original
         app.dependency_overrides.clear()

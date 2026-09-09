@@ -27,7 +27,12 @@ def get_session() -> Generator[Session, None, None]:
         yield session
 
 
-@router.post("", response_model=DocumentResponse, status_code=status.HTTP_201_CREATED, summary="Upload a document")
+@router.post(
+    "",
+    response_model=DocumentResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Upload a document",
+)
 async def upload_document(
     file: UploadFile = File(...),
     session: Session = Depends(get_session),
@@ -46,7 +51,9 @@ async def upload_document(
     except DocumentIngestionError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    document = DocumentRepository(session).add(extracted.name, extracted.source_type, extracted.chunks)
+    document = DocumentRepository(session).add(
+        extracted.name, extracted.source_type, extracted.chunks
+    )
     try:
         vectors = get_embedder().encode(extracted.chunks)
         vector_store.ensure_collection(get_embedder().dimension)
@@ -67,7 +74,9 @@ async def upload_document(
     except Exception as exc:
         session.rollback()
         ERROR_COUNT.labels("document_ingestion").inc()
-        raise HTTPException(status_code=503, detail="Document embedding is temporarily unavailable") from exc
+        raise HTTPException(
+            status_code=503, detail="Document embedding is temporarily unavailable"
+        ) from exc
     DOCUMENT_INGESTION_COUNT.inc()
     return DocumentResponse(
         id=document.id,
@@ -90,7 +99,9 @@ def list_documents(session: Session = Depends(get_session)) -> list[DocumentResp
     ]
 
 
-@router.delete("/{document_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete an indexed document")
+@router.delete(
+    "/{document_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete an indexed document"
+)
 def delete_document(document_id: str, session: Session = Depends(get_session)) -> None:
     repository = DocumentRepository(session)
     document = repository.get(document_id)
@@ -102,7 +113,9 @@ def delete_document(document_id: str, session: Session = Depends(get_session)) -
         except Exception as exc:
             session.rollback()
             ERROR_COUNT.labels("document_deletion").inc()
-            raise HTTPException(status_code=503, detail="Document deletion is temporarily unavailable") from exc
+            raise HTTPException(
+                status_code=503, detail="Document deletion is temporarily unavailable"
+            ) from exc
 
 
 def seed_demo_documents(session: Session = Depends(get_session)) -> list[DocumentResponse]:
@@ -121,15 +134,32 @@ def seed_demo_documents(session: Session = Depends(get_session)) -> list[Documen
             chunk_size=settings.chunk_size,
             chunk_overlap=settings.chunk_overlap,
         )
-        document = DocumentRepository(session).add(extracted.name, extracted.source_type, extracted.chunks)
+        document = DocumentRepository(session).add(
+            extracted.name, extracted.source_type, extracted.chunks
+        )
         vectors = get_embedder().encode(extracted.chunks)
         vector_store.ensure_collection(get_embedder().dimension)
         vector_store.upsert(
-            [chunk.id for chunk in document.chunks], vectors,
-            [{"document_id": document.id, "document_name": document.name, "chunk_index": chunk.chunk_index, "text": chunk.text} for chunk in document.chunks],
+            [chunk.id for chunk in document.chunks],
+            vectors,
+            [
+                {
+                    "document_id": document.id,
+                    "document_name": document.name,
+                    "chunk_index": chunk.chunk_index,
+                    "text": chunk.text,
+                }
+                for chunk in document.chunks
+            ],
         )
         DOCUMENT_INGESTION_COUNT.inc()
-        seeded.append(DocumentResponse(id=document.id, name=document.name, source_type=document.source_type, chunk_count=len(document.chunks)))
+        seeded.append(
+            DocumentResponse(
+                id=document.id,
+                name=document.name,
+                source_type=document.source_type,
+                chunk_count=len(document.chunks),
+            )
+        )
     session.commit()
     return seeded
-
