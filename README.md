@@ -88,10 +88,10 @@ universal RAG performance.
 
 | Strategy | Hit@5 | Recall@5 | MRR | Avg latency (ms) | P95 (ms) |
 |---|---:|---:|---:|---:|---:|
-| BM25 | 0.77 | 0.77 | 0.77 | 0.25 | 0.17 |
+| BM25 | 0.77 | 0.77 | 0.77 | 0.23 | 0.17 |
 | Vector | 0.80 | 0.80 | 0.65 | 0.08 | 0.10 |
-| Hybrid | 0.80 | 0.80 | 0.78 | 0.59 | 0.62 |
-| Hybrid + rerank | 0.80 | 0.80 | 0.80 | 0.08 | 0.09 |
+| Hybrid | 0.80 | 0.80 | 0.78 | 0.60 | 0.73 |
+| Hybrid + rerank | 0.80 | 0.80 | 0.80 | 0.09 | 0.11 |
 
 Run `python -m app.evaluation.run` from `backend` to reproduce the benchmark. The complete generated results are
 available in [docs/evaluation/](docs/evaluation/), including JSON and Markdown reports.
