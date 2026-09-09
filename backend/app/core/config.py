@@ -6,7 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     app_name: str = "Agentic RAG Platform API"
-    app_version: str = "0.1.0"
+    app_version: str = "1.0.0"
     environment: str = "development"
     backend_host: str = "127.0.0.1"
     backend_port: int = 8000
