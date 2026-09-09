@@ -18,9 +18,9 @@
       "hit_rate_at_5": 0.7666666666666667,
       "recall_at_5": 0.7666666666666667,
       "mean_reciprocal_rank": 0.7666666666666667,
-      "average_latency_ms": 0.39811666623184766,
-      "p50_latency_ms": 0.3020000003743917,
-      "p95_latency_ms": 0.33489999623270705,
+      "average_latency_ms": 0.39757999960177887,
+      "p50_latency_ms": 0.2978999982587993,
+      "p95_latency_ms": 0.3401000067242421,
       "fact_coverage": 0.7666666666666667
     },
     {
@@ -30,9 +30,9 @@
       "hit_rate_at_5": 0.8,
       "recall_at_5": 0.8,
       "mean_reciprocal_rank": 0.6527777777777778,
-      "average_latency_ms": 0.47787666650644195,
-      "p50_latency_ms": 0.3808000037679449,
-      "p95_latency_ms": 0.41680000140331686,
+      "average_latency_ms": 0.4768366665909222,
+      "p50_latency_ms": 0.3752999982680194,
+      "p95_latency_ms": 0.4242000068188645,
       "fact_coverage": 0.8
     },
     {
@@ -42,9 +42,9 @@
       "hit_rate_at_5": 0.8,
       "recall_at_5": 0.8,
       "mean_reciprocal_rank": 0.7833333333333333,
-      "average_latency_ms": 1.1450066665323295,
-      "p50_latency_ms": 1.0320000001229346,
-      "p95_latency_ms": 1.1248000009800307,
+      "average_latency_ms": 1.1356766660658952,
+      "p50_latency_ms": 1.0179000018979423,
+      "p95_latency_ms": 1.1444000047049485,
       "fact_coverage": 0.8
     },
     {
@@ -54,9 +54,9 @@
       "hit_rate_at_5": 0.8,
       "recall_at_5": 0.8,
       "mean_reciprocal_rank": 0.8,
-      "average_latency_ms": 1.145413333142642,
-      "p50_latency_ms": 1.0323999958927743,
-      "p95_latency_ms": 1.125200004025828,
+      "average_latency_ms": 1.1360999999548465,
+      "p50_latency_ms": 1.018299997667782,
+      "p95_latency_ms": 1.1448000004747882,
       "fact_coverage": 0.8
     }
   ]
