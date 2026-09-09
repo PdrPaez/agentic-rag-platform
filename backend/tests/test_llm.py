@@ -44,6 +44,16 @@ def test_openai_provider_reports_transport_failure(monkeypatch: pytest.MonkeyPat
         OpenAICompatibleProvider("key", "model", "https://example.com/v1").generate("Q", [])
 
 
+def test_openai_provider_reports_timeout(monkeypatch: pytest.MonkeyPatch) -> None:
+    def timeout(*args: object, **kwargs: object) -> None:
+        raise __import__("httpx").ReadTimeout("timed out")
+
+    monkeypatch.setattr("app.llm.providers.httpx.post", timeout)
+
+    with pytest.raises(RuntimeError, match="provider is unavailable"):
+        OpenAICompatibleProvider("key", "model", "https://example.com/v1").generate("Q", [])
+
+
 def test_openai_provider_delimits_untrusted_context(monkeypatch: pytest.MonkeyPatch) -> None:
     captured: dict[str, object] = {}
 
