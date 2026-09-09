@@ -2,7 +2,7 @@ from app.evaluation.run import evaluate, load_cases, load_chunks
 
 
 def test_bundled_evaluation_dataset_is_complete() -> None:
-    assert len(load_cases()) == 29
+    assert len(load_cases()) == 30
     assert {chunk.document_id for chunk in load_chunks()} == {
         "architecture.md", "refund-policy.md", "incident-response.md", "engineering-handbook.md", "support-procedures.md"
     }
