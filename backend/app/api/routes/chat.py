@@ -88,6 +88,7 @@ class TimedProvider:
             answer = self.provider.generate(question, context, tool_result)
         except RuntimeError:
             PROVIDER_FAILURE_COUNT.labels(self.name).inc()
+            record_trace(self.request_id, "generation_failed", 0.0, provider=self.name)
             raise
         self.timings["generation_latency_ms"] = (perf_counter() - started) * 1000
         record_trace(self.request_id, "generation_completed", self.timings["generation_latency_ms"], provider=self.name)

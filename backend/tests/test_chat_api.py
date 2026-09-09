@@ -5,6 +5,7 @@ from fastapi.testclient import TestClient
 from app.api.routes import chat as chat_route
 from app.api.routes.documents import get_session
 from app.main import app
+from app.observability.traces import get_trace
 from app.rag.hybrid import HybridCandidate
 
 
@@ -112,6 +113,8 @@ def test_chat_returns_service_unavailable_when_provider_is_down() -> None:
 
         assert response.status_code == 503
         assert response.json()["detail"] == "The LLM provider is unavailable"
+        request_id = response.headers["x-request-id"]
+        assert any(stage["stage"] == "generation_failed" for stage in (get_trace(request_id) or []))
     finally:
         chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider = original
         app.dependency_overrides.clear()
