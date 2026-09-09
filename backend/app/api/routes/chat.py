@@ -3,7 +3,7 @@ from typing import Literal
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 
 from app.agents.orchestrator import BoundedOrchestrator
@@ -29,6 +29,13 @@ router = APIRouter()
 
 class ChatRequest(BaseModel):
     question: str = Field(min_length=1, max_length=2000)
+
+    @field_validator("question")
+    @classmethod
+    def question_must_contain_text(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("Question must contain non-whitespace text")
+        return value
 
 
 class Citation(BaseModel):

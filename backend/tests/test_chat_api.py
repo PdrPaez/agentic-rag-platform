@@ -5,6 +5,12 @@ from fastapi.testclient import TestClient
 from app.api.routes import chat as chat_route
 from app.api.routes.documents import get_session
 from app.main import app
+
+
+def test_chat_rejects_whitespace_only_questions() -> None:
+    response = TestClient(app).post("/api/chat", json={"question": "   "})
+
+    assert response.status_code == 422
 from app.observability.traces import get_trace
 from app.rag.hybrid import HybridCandidate
 
