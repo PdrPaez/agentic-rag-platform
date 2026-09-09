@@ -130,6 +130,8 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
         if str(exc) != "The LLM provider is unavailable":
             raise
         raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="The requested tool operation is invalid") from exc
     GENERATION_LATENCY.observe(timings["generation_latency_ms"] / 1000)
     reranked = result.ranked_candidates
     answer = result.answer

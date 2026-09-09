@@ -125,6 +125,22 @@ def test_chat_returns_service_unavailable_when_provider_is_down() -> None:
         app.dependency_overrides.clear()
 
 
+def test_chat_returns_bad_request_for_invalid_calculation() -> None:
+    app.dependency_overrides[get_session] = lambda: iter([object()])
+    original = (chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider)
+    chat_route.get_retriever = lambda: FakeRetriever()
+    chat_route.get_reranker = lambda: FakeReranker()
+    chat_route.get_provider = lambda: FakeProvider()
+    try:
+        response = TestClient(app).post("/api/chat", json={"question": "Calculate 1 / 0"})
+
+        assert response.status_code == 400
+        assert response.json()["detail"] == "The requested tool operation is invalid"
+    finally:
+        chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider = original
+        app.dependency_overrides.clear()
+
+
 def test_chat_reports_partial_when_context_budget_truncates() -> None:
     app.dependency_overrides[get_session] = lambda: iter([object()])
     original = (chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider)
