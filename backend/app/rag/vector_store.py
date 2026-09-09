@@ -62,3 +62,6 @@ class LocalVectorStore:
                 must=[FieldCondition(key="document_id", match=MatchValue(value=document_id))]
             ),
         )
+
+    def close(self) -> None:
+        self.client.close()
