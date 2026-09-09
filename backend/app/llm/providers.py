@@ -52,8 +52,13 @@ class OpenAICompatibleProvider:
         response.raise_for_status()
         data = response.json()
         try:
-            return str(data["choices"][0]["message"]["content"])
+            content = data["choices"][0]["message"]["content"]
+            if not isinstance(content, str) or not content.strip():
+                raise ValueError("empty content")
+            return content
         except (KeyError, IndexError, TypeError) as exc:
+            raise ValueError("The LLM provider returned an invalid response") from exc
+        except ValueError as exc:
             raise ValueError("The LLM provider returned an invalid response") from exc
 
 
