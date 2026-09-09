@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -11,7 +12,7 @@ class Settings(BaseSettings):
     backend_port: int = 8000
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
     database_url: str = "sqlite:///./data/agentic_rag.db"
-    max_upload_size_bytes: int = 10 * 1024 * 1024
+    max_upload_size_bytes: int = Field(default=10 * 1024 * 1024, gt=0)
     vector_storage_path: str = "./qdrant_storage"
     embedding_model_name: str = "sentence-transformers/all-MiniLM-L6-v2"
     vector_collection_name: str = "document_chunks"
@@ -20,13 +21,13 @@ class Settings(BaseSettings):
     llm_model_name: str = "gpt-4o-mini"
     llm_api_key: str | None = None
     llm_base_url: str = "https://api.openai.com/v1"
-    retrieval_candidate_count: int = 12
-    final_context_count: int = 5
+    retrieval_candidate_count: int = Field(default=12, gt=0)
+    final_context_count: int = Field(default=5, gt=0)
     lexical_weight: float = 0.4
     vector_weight: float = 0.6
     chunk_size: int = 800
     chunk_overlap: int = 150
-    max_context_characters: int = 6000
+    max_context_characters: int = Field(default=6000, gt=0)
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
