@@ -20,6 +20,7 @@ class OrchestrationResult:
     tools_used: list[str]
     steps: int
     context_truncated: bool = False
+    context_chunks: int = 0
 
 
 class BoundedOrchestrator:
@@ -71,5 +72,6 @@ class BoundedOrchestrator:
             tools_used=["search_knowledge_base"] if candidates else [],
             steps=min(steps, MAX_STEPS),
             context_truncated=context_truncated,
+            context_chunks=len(context),
         )
 

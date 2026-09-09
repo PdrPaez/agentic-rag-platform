@@ -11,6 +11,7 @@ from app.api.routes.documents import get_session
 from app.core.config import get_settings
 from app.observability.metrics import (
     ANSWER_STATUS_COUNT,
+    FINAL_CONTEXT_CHUNKS,
     GENERATION_LATENCY,
     PROVIDER_FAILURE_COUNT,
     PROVIDER_REQUEST_COUNT,
@@ -57,6 +58,7 @@ class ChatDiagnostics(BaseModel):
     estimated_input_tokens: int
     estimated_output_tokens: int
     context_truncated: bool
+    context_chunks: int
     retrieval: list[RetrievalDiagnostic]
 
 
@@ -148,6 +150,7 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
         estimated_input_tokens=len(payload.question.split()) + sum(len(candidate.text.split()) for candidate, _ in reranked),
             estimated_output_tokens=len(answer.split()),
             context_truncated=result.context_truncated,
+            context_chunks=result.context_chunks,
         retrieval=[
             RetrievalDiagnostic(
                 chunk_id=candidate.chunk_id,
@@ -167,6 +170,7 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
         else "insufficient_context"
     )
     ANSWER_STATUS_COUNT.labels(answer_status).inc()
+    FINAL_CONTEXT_CHUNKS.set(result.context_chunks)
     return ChatResponse(
         answer=answer,
         answer_status=answer_status,
