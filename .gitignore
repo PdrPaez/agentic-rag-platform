@@ -11,6 +11,7 @@ backend/package-lock.json
 dist/
 .vite/
 coverage/
+.coverage
 *.db
 *.sqlite3
 data/
