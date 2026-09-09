@@ -19,6 +19,9 @@ function App() {
     catch (error) { setMessage(error instanceof Error ? error.message : "Could not load documents"); }
   };
   useEffect(() => { void refreshDocuments(); }, []);
+  useEffect(() => {
+    if (activeResponse) setMessage(`Answer status: ${activeResponse.answer_status.replaceAll("_", " ")}`);
+  }, [activeResponse]);
 
   const handleUpload = async (file: File) => {
     setBusy(true); setMessage(`Indexing ${file.name}…`);
