@@ -74,7 +74,9 @@ flowchart LR
     Agent --> Provider[Mock or OpenAI-compatible provider]
 ~~~
 
-The detailed request flow is documented in docs/architecture.md.
+The detailed request flow is documented in [docs/architecture.md](docs/architecture.md). Retrieval design is
+documented in [docs/retrieval.md](docs/retrieval.md), and significant technical choices are recorded in
+[docs/decisions.md](docs/decisions.md).
 
 ## Repository layout
 
