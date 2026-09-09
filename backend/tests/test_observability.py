@@ -41,6 +41,7 @@ def test_trace_redacts_sensitive_metadata() -> None:
         authorization="Bearer secret",
         provider={"token": "nested-secret", "model": "mock"},
         attempts=[{"password": "nested-password"}],
+        headers={"apiKey": "camel-secret", "access_token": "access-secret"},
     )
 
     metadata = TestClient(app).get("/api/traces/secret-trace").json()["entries"][0]["metadata"]
@@ -49,4 +50,5 @@ def test_trace_redacts_sensitive_metadata() -> None:
         "authorization": "[REDACTED]",
         "provider": {"token": "[REDACTED]", "model": "mock"},
         "attempts": [{"password": "[REDACTED]"}],
+        "headers": {"apiKey": "[REDACTED]", "access_token": "[REDACTED]"},
     }

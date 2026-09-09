@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from threading import Lock
@@ -21,10 +22,15 @@ logger = logging.getLogger("agentic_rag_platform")
 SENSITIVE_METADATA_KEYS = {"api_key", "authorization", "password", "secret", "token"}
 
 
+def _is_sensitive_key(key: object) -> bool:
+    normalized = re.sub(r"[^a-z0-9]", "", str(key).lower())
+    return normalized in {"apikey", "authorization", "password", "secret", "token"} or normalized.endswith("token")
+
+
 def _safe_value(value: Any) -> Any:
     if isinstance(value, dict):
         return {
-            key: "[REDACTED]" if str(key).lower() in SENSITIVE_METADATA_KEYS else _safe_value(item)
+            key: "[REDACTED]" if _is_sensitive_key(key) else _safe_value(item)
             for key, item in value.items()
         }
     if isinstance(value, list):
