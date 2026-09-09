@@ -28,6 +28,12 @@ def test_ingest_rejects_unsupported_types(filename: str) -> None:
         ingest_document(filename, b"content")
 
 
+def test_ingest_strips_upload_path_components() -> None:
+    extracted = ingest_document("../../outside/guide.md", b"safe content")
+
+    assert extracted.name == "guide.md"
+
+
 def test_ingest_rejects_empty_text() -> None:
     with pytest.raises(DocumentIngestionError, match="no extractable text"):
         ingest_document("empty.txt", b" \n\t")
