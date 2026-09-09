@@ -12,6 +12,8 @@ def test_requests_return_request_id_and_metrics_endpoint_is_available() -> None:
     assert response.headers["x-request-id"] == "request-test"
     metrics = client.get("/api/metrics")
     assert metrics.status_code == 200
+    assert b"rag_provider_requests_total" in metrics.content
+    assert b"rag_answer_status_total" in metrics.content
     assert "rag_http_requests_total" in metrics.text
     assert "rag_retrieval_latency_seconds" in metrics.text
     assert "rag_document_ingestion_total" in metrics.text

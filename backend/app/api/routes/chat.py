@@ -9,7 +9,13 @@ from sqlalchemy.orm import Session
 from app.agents.orchestrator import BoundedOrchestrator
 from app.api.routes.documents import get_session
 from app.core.config import get_settings
-from app.observability.metrics import GENERATION_LATENCY, RETRIEVAL_LATENCY
+from app.observability.metrics import (
+    ANSWER_STATUS_COUNT,
+    GENERATION_LATENCY,
+    PROVIDER_FAILURE_COUNT,
+    PROVIDER_REQUEST_COUNT,
+    RETRIEVAL_LATENCY,
+)
 from app.observability.traces import record_trace
 from app.rag.provider_runtime import get_provider
 from app.rag.reranker_runtime import get_reranker
@@ -77,7 +83,12 @@ class TimedProvider:
             record_trace(self.request_id, "tool_called", 0.0, tools=["calculator"])
         record_trace(self.request_id, "generation_started", 0.0, provider=self.name)
         started = perf_counter()
-        answer = self.provider.generate(question, context, tool_result)
+        PROVIDER_REQUEST_COUNT.labels(self.name).inc()
+        try:
+            answer = self.provider.generate(question, context, tool_result)
+        except RuntimeError:
+            PROVIDER_FAILURE_COUNT.labels(self.name).inc()
+            raise
         self.timings["generation_latency_ms"] = (perf_counter() - started) * 1000
         record_trace(self.request_id, "generation_completed", self.timings["generation_latency_ms"], provider=self.name)
         return answer
@@ -144,13 +155,15 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
             for candidate, score in reranked
         ],
     )
+    answer_status = (
+        "tool_result" if "calculator" in result.tools_used
+        else "answered" if reranked
+        else "insufficient_context"
+    )
+    ANSWER_STATUS_COUNT.labels(answer_status).inc()
     return ChatResponse(
         answer=answer,
-        answer_status=(
-            "tool_result" if "calculator" in result.tools_used
-            else "answered" if reranked
-            else "insufficient_context"
-        ),
+        answer_status=answer_status,
         citations=[
             Citation(
                 document_id=candidate.document_id,
