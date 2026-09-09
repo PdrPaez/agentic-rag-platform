@@ -56,6 +56,7 @@ class ChatDiagnostics(BaseModel):
     provider: str
     estimated_input_tokens: int
     estimated_output_tokens: int
+    context_truncated: bool
     retrieval: list[RetrievalDiagnostic]
 
 
@@ -145,7 +146,8 @@ def chat(payload: ChatRequest, request: Request, session: Session = Depends(get_
         generation_latency_ms=generation_latency_ms,
         provider=get_provider().name,
         estimated_input_tokens=len(payload.question.split()) + sum(len(candidate.text.split()) for candidate, _ in reranked),
-        estimated_output_tokens=len(answer.split()),
+            estimated_output_tokens=len(answer.split()),
+            context_truncated=result.context_truncated,
         retrieval=[
             RetrievalDiagnostic(
                 chunk_id=candidate.chunk_id,
