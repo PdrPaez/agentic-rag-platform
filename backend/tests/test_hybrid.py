@@ -30,3 +30,12 @@ def test_combine_results_merges_by_chunk_and_retains_diagnostics() -> None:
 def test_combine_results_rejects_invalid_weights() -> None:
     with pytest.raises(ValueError):
         combine_results([], [], lexical_weight=0.0, vector_weight=0.0)
+
+
+def test_combine_results_breaks_score_ties_by_chunk_id() -> None:
+    results = combine_results(
+        [LexicalMatch("b", 1.0, "B", "doc"), LexicalMatch("a", 1.0, "A", "doc")],
+        [],
+    )
+
+    assert [candidate.chunk_id for candidate in results] == ["a", "b"]
