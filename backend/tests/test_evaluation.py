@@ -2,10 +2,13 @@ from app.evaluation.run import evaluate, load_cases, load_chunks
 
 
 def test_bundled_evaluation_dataset_is_complete() -> None:
-    assert len(load_cases()) == 30
+    cases = load_cases()
+    assert len(cases) == 30
     assert {chunk.document_id for chunk in load_chunks()} == {
         "architecture.md", "refund-policy.md", "incident-response.md", "engineering-handbook.md", "support-procedures.md"
     }
+    negative_cases = [case for case in cases if not case.expected_document and not case.expected_facts]
+    assert 0.20 <= len(negative_cases) / len(cases) <= 0.30
 
 
 def test_evaluation_executes_all_retrieval_stages() -> None:
