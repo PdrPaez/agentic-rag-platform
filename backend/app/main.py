@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -10,9 +12,18 @@ from app.api.routes.traces import router as traces_router
 from app.core.config import get_settings
 from app.db import runtime  # noqa: F401
 from app.observability.middleware import RequestObservabilityMiddleware
+from app.rag.runtime import vector_store
 
 settings = get_settings()
-app = FastAPI(title=settings.app_name, version=settings.app_version)
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    yield
+    vector_store.close()
+
+
+app = FastAPI(title=settings.app_name, version=settings.app_version, lifespan=lifespan)
 app.add_middleware(RequestObservabilityMiddleware)
 app.add_middleware(
     CORSMiddleware,
