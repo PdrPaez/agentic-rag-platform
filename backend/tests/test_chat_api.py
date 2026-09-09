@@ -62,6 +62,7 @@ def test_chat_returns_structured_answer_and_citation() -> None:
         assert body["answer"] == "Answer from Useful context"
         assert body["answer_status"] == "answered"
         assert body["citations"][0]["document_name"] == "Guide.md"
+        assert body["citations"][0]["chunk_id"] == body["diagnostics"]["retrieval"][0]["chunk_id"]
         assert body["diagnostics"]["retrieved_chunks"] == 1
     finally:
         chat_route.get_retriever, chat_route.get_reranker, chat_route.get_provider = original
