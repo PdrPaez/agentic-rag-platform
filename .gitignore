@@ -15,6 +15,7 @@ coverage/
 *.sqlite3
 data/
 qdrant_storage/
+qdrant_test_*/
 .DS_Store
 .idea/
 .vscode/
