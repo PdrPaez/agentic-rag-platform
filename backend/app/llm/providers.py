@@ -37,19 +37,22 @@ class OpenAICompatibleProvider:
         prompt = "\n\n".join(context)
         if tool_result is not None:
             prompt = f"Calculator result: {tool_result}\n\n{prompt}"
-        response = httpx.post(
-            f"{self.base_url}/chat/completions",
-            headers={"Authorization": f"Bearer {self.api_key}"},
-            json={
-                "model": self.model_name,
-                "messages": [
-                    {"role": "system", "content": "Answer using only the supplied context."},
-                    {"role": "user", "content": f"Context:\n{prompt}\n\nQuestion: {query}"},
-                ],
-            },
-            timeout=30.0,
-        )
-        response.raise_for_status()
+        try:
+            response = httpx.post(
+                f"{self.base_url}/chat/completions",
+                headers={"Authorization": f"Bearer {self.api_key}"},
+                json={
+                    "model": self.model_name,
+                    "messages": [
+                        {"role": "system", "content": "Answer using only the supplied context."},
+                        {"role": "user", "content": f"Context:\n{prompt}\n\nQuestion: {query}"},
+                    ],
+                },
+                timeout=30.0,
+            )
+            response.raise_for_status()
+        except httpx.HTTPError as exc:
+            raise RuntimeError("The LLM provider is unavailable") from exc
         data = response.json()
         try:
             content = data["choices"][0]["message"]["content"]
