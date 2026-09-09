@@ -298,4 +298,4 @@ Before promotion, run backend tests and Ruff, frontend lint and build, and updat
 
 ## License
 
-No public license has been declared. Treat this repository as internal software unless a separate license is provided.
+This repository is released under the [MIT License](LICENSE).
