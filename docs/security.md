@@ -15,3 +15,7 @@ Authentication, authorization, tenant isolation, malware scanning, encrypted sto
 ## Prompt-injection boundary
 
 Prompt-injection content can still be stored as ordinary document text. The application treats it as retrievable evidence and does not grant it tool or system authority. Provider-backed deployments should add model-specific policy controls and audit them separately.
+
+## Conflicting evidence
+
+The chat pipeline conservatively flags divergent numeric values from different relevant documents and returns a partial answer with both citations. This is a safety signal, not semantic contradiction proof: textual, qualitative, and domain-specific conflicts may require human review.
