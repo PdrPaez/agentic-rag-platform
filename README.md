@@ -4,7 +4,7 @@ A deliberately small foundation for exploring inspectable retrieval-augmented ge
 
 ## Current scope
 
-The repository currently provides a typed FastAPI health endpoint and a Vite React frontend shell. Retrieval, ingestion, and agent capabilities will be added as focused tasks rather than speculative infrastructure.
+The repository provides a local-first FastAPI RAG backend and a React workspace for document ingestion, hybrid retrieval, bounded tool orchestration, citations, diagnostics, metrics, and deterministic evaluation. See [docs/architecture.md](docs/architecture.md) for the implemented request flow.
 
 ## Local setup
 
