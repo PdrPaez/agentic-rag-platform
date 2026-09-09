@@ -328,6 +328,12 @@ The visual polish release is recorded in commits 3828b5c and c47d2c2.
 - The retrieval benchmark uses a controlled corpus and normalized text matching.
 - Authentication and multi-tenant isolation are not implemented yet.
 
+## Security model
+
+Retrieved documents are treated as untrusted evidence, tools are allowlisted, calculator evaluation is restricted, and
+uploads and trace metadata are validated or redacted. See the complete threat model, mitigations, and production
+limitations in [docs/security.md](docs/security.md).
+
 The security boundary and prompt-injection limitations are documented in [docs/security.md](docs/security.md). The chat API also reports whether each response is grounded in retrieved context, lacks sufficient context, or comes from the calculator tool.
 - Ingestion and vector indexing are synchronous.
 - Model caches and runtime data are environment artifacts and should not be committed.
