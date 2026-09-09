@@ -25,7 +25,7 @@ def test_settings_parse_comma_separated_cors_origins() -> None:
     ]
 
 
-@pytest.mark.parametrize("field", ["max_context_characters", "retrieval_candidate_count", "final_context_count"])
+@pytest.mark.parametrize("field", ["max_context_characters", "retrieval_candidate_count", "final_context_count", "llm_timeout_seconds"])
 def test_settings_reject_non_positive_runtime_limits(field: str) -> None:
     with pytest.raises(ValidationError):
         Settings(**{field: 0})

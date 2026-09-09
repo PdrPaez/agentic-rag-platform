@@ -8,6 +8,10 @@ from app.llm.providers import LLMProvider, create_provider
 def get_provider() -> LLMProvider:
     settings = get_settings()
     return create_provider(
-        settings.llm_provider, settings.llm_model_name, settings.llm_api_key, settings.llm_base_url
+        settings.llm_provider,
+        settings.llm_model_name,
+        settings.llm_api_key,
+        settings.llm_base_url,
+        settings.llm_timeout_seconds,
     )
 
