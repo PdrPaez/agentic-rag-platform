@@ -162,6 +162,7 @@ def test_chat_returns_bad_gateway_when_provider_response_is_invalid() -> None:
         )
 
         assert response.status_code == 502
+        assert response.headers["x-request-id"] == "malformed-provider-test"
         assert response.json()["detail"] == "The LLM provider returned an invalid response"
         trace = client.get("/api/traces/malformed-provider-test").json()
         assert trace["entries"][-1]["stage"] == "generation_failed"
