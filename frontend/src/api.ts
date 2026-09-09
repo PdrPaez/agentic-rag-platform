@@ -23,6 +23,7 @@ export type RetrievalDiagnostic = {
 
 export type ChatResponse = {
   answer: string;
+  answer_status: "answered" | "partial" | "insufficient_context" | "tool_result";
   citations: Citation[];
   tools_used: string[];
   diagnostics: {
