@@ -29,3 +29,10 @@ def test_trace_endpoint_returns_recorded_trace() -> None:
     assert response.status_code == 200
     assert response.json()["entries"][0]["stage"] == "request_received"
     assert TestClient(app).get("/api/traces/missing").status_code == 404
+
+
+def test_trace_redacts_sensitive_metadata() -> None:
+    record_trace("secret-trace", "provider", 0.0, api_key="do-not-store", authorization="Bearer secret")
+
+    metadata = TestClient(app).get("/api/traces/secret-trace").json()["entries"][0]["metadata"]
+    assert metadata == {"api_key": "[REDACTED]", "authorization": "[REDACTED]"}

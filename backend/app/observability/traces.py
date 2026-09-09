@@ -18,13 +18,22 @@ class TraceEntry:
 _traces: dict[str, list[TraceEntry]] = {}
 _lock = Lock()
 logger = logging.getLogger("agentic_rag_platform")
+SENSITIVE_METADATA_KEYS = {"api_key", "authorization", "password", "secret", "token"}
+
+
+def _safe_metadata(metadata: dict[str, Any]) -> dict[str, Any]:
+    return {
+        key: "[REDACTED]" if key.lower() in SENSITIVE_METADATA_KEYS else value
+        for key, value in metadata.items()
+    }
 
 
 def record_trace(request_id: str, stage: str, elapsed_ms: float, **metadata: Any) -> None:
-    entry = TraceEntry(stage, datetime.now(UTC).isoformat(), round(elapsed_ms, 3), metadata)
+    safe_metadata = _safe_metadata(metadata)
+    entry = TraceEntry(stage, datetime.now(UTC).isoformat(), round(elapsed_ms, 3), safe_metadata)
     with _lock:
         _traces.setdefault(request_id, []).append(entry)
-    logger.info("trace_stage", extra={"request_id": request_id, "stage": stage, "elapsed_ms": entry.elapsed_ms, **metadata})
+    logger.info("trace_stage", extra={"request_id": request_id, "stage": stage, "elapsed_ms": entry.elapsed_ms, **safe_metadata})
 
 
 def get_trace(request_id: str) -> list[dict[str, Any]] | None:
