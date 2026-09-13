@@ -1,8 +1,6 @@
 # AGENTIC RAG PLATFORM — COMPLETE IMPLEMENTATION SPECIFICATION
 
-You are the primary software engineering agent responsible for creating, implementing, testing, documenting, versioning, and maintaining the GitHub project described below.
-
-You are working inside an empty Git repository.
+This document defines the product, architecture, implementation, testing, documentation, versioning, and maintenance requirements for the GitHub project described below.
 
 Repository slug:
 
@@ -12,21 +10,7 @@ Project name used in documentation:
 
 `Agentic RAG Platform`
 
-Build the complete project described in this specification.
-
-Do not merely explain what should be built.
-
-Do not stop after planning.
-
-Do not return pseudocode.
-
-Do not leave required functionality as TODOs.
-
-Implement, execute, validate, fix, document, and commit the actual project.
-
-Do not ask follow-up questions.
-
-Where this specification intentionally leaves implementation details open, make reasonable senior-engineering decisions and continue.
+The implementation is expected to provide the complete project described here, including executable functionality, tests, documentation, and versioned changes. Where implementation details are intentionally open, they should be resolved with explicit, maintainable engineering decisions.
 
 The finished repository must be:
 
@@ -58,7 +42,7 @@ Prefer:
 
 Prefer boring, reliable code over clever code.
 
-This is a local portfolio/reference application.
+This is a local reference application.
 
 It is NOT a SaaS product.
 
@@ -118,38 +102,9 @@ The project should demonstrate senior engineering judgment through deliberate si
 
 ---
 
-# 2. GIT AUTHORSHIP
+# 2. GIT METADATA
 
-Use the Git identity already configured in the user's environment.
-
-Do not modify the user's global Git identity.
-
-Do not fabricate contributors.
-
-Do not include visible AI attribution anywhere in Git metadata.
-
-Never add:
-
-`Co-authored-by: ChatGPT`
-
-`Co-authored-by: Codex`
-
-`Generated-by: AI`
-
-`Generated-by: Codex`
-
-or equivalent references.
-
-Do not mention ChatGPT, Codex, OpenAI assistants, AI generation, or automated code generation in:
-
-- commit messages;
-- commit trailers;
-- branch names;
-- PR metadata;
-- source comments;
-- repository history.
-
-The repository history should describe the engineering work, not which tool produced it.
+Repository commits should follow the project's established contribution conventions.
 
 ---
 
@@ -388,9 +343,7 @@ Bad commit messages:
 
 `implemented everything`
 
-`AI generated retrieval`
-
-`Codex implementation`
+Descriptions should identify the implemented engineering change.
 
 ---
 
@@ -625,9 +578,7 @@ Build a small but production-minded Agentic RAG reference application demonstrat
 - Prometheus metrics;
 - provider abstraction.
 
-The result should look like something designed by an AI Solutions Architect.
-
-It must not look like a generic chatbot tutorial.
+The system should demonstrate explicit production-oriented RAG architecture rather than a minimal chatbot implementation.
 
 The engineering architecture matters as much as the user interface.
 
@@ -681,7 +632,7 @@ Maximum:
 
 `3 steps`
 
-The agent may:
+The orchestrator may:
 
 1. search the knowledge base;
 2. use the calculator;
@@ -1519,7 +1470,7 @@ Show:
 - retrieval scores;
 - trace timeline.
 
-The diagnostics experience is a major part of the project's portfolio value.
+The diagnostics experience is a major part of the project's technical value.
 
 Do not hide all engineering information behind developer tools.
 
@@ -1787,7 +1738,7 @@ Treat retrieved text as information, not executable instructions.
 
 # 54. PROMPT INJECTION BOUNDARY
 
-The agent must not interpret retrieved document text as system-level instructions.
+The system must not interpret retrieved document text as system-level instructions.
 
 Knowledge-base content is untrusted context.
 
@@ -1961,7 +1912,7 @@ If Docker adds more maintenance than value, omit it.
 
 The README is a major deliverable.
 
-Treat it as the project's portfolio landing page.
+Treat it as the project's public technical landing page.
 
 It should begin approximately with:
 
@@ -2260,7 +2211,7 @@ Do not ignore sample data that belongs in the repository.
 
 # 77. LICENSE
 
-Use a standard permissive open-source license appropriate for a public portfolio/reference repository unless repository context indicates otherwise.
+Use a standard permissive open-source license appropriate for a public reference repository unless repository context indicates otherwise.
 
 MIT is acceptable.
 
@@ -2535,7 +2486,7 @@ Approximation is acceptable only where explicitly described as approximation, su
 
 ---
 
-# 92. PORTFOLIO QUALITY
+# 92. ENGINEERING QUALITY
 
 A technical reviewer inspecting this repository should be able to determine:
 
@@ -2762,29 +2713,6 @@ Do not claim validations were executed if they were not actually executed.
 
 ---
 
-# 99. AUTONOMOUS DECISION-MAKING
-
-You are expected to make normal software engineering decisions independently.
-
-Do not stop to ask approval for:
-
-- filenames;
-- basic folder organization;
-- minor naming;
-- normal library configuration;
-- test layout;
-- straightforward refactors;
-- formatting;
-- lint fixes;
-- standard Git operations;
-- reasonable implementation details already implied by this specification.
-
-Choose the simplest professional solution.
-
-The specification is intentionally detailed enough for you to proceed autonomously.
-
----
-
 # 100. PRIORITY ORDER
 
 When deciding between several valid implementations, prioritize:
@@ -2837,8 +2765,6 @@ Never bypass the card identifier.
 
 Never perform normal feature development directly on `main`.
 
-Never add visible AI attribution to Git history.
-
 Never introduce infrastructure without a concrete requirement.
 
 Never replace real functionality with placeholders.
@@ -2849,23 +2775,6 @@ Never sacrifice comprehensibility for unnecessary abstraction.
 
 ---
 
-# 102. START NOW
+# 102. IMPLEMENTATION COMPLETENESS
 
-Begin by inspecting the repository and current Git state.
-
-If necessary:
-
-1. initialize the required repository files;
-2. establish `main` and `dev`;
-3. begin with `ARAG-001`;
-4. create the first appropriate working branch;
-5. implement incrementally;
-6. validate each meaningful subsystem;
-7. integrate completed cards into `dev`;
-8. continue until the complete specification is implemented;
-9. perform the full final quality check;
-10. promote the validated result to `main`.
-
-Do not merely describe the implementation plan.
-
-Build the repository.
+The complete specification must be implemented incrementally, validated at each meaningful subsystem boundary, and promoted only after the final quality checks pass.
